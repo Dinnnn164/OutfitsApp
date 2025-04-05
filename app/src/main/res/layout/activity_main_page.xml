@@ -13,8 +13,9 @@
     <FrameLayout
         android:id="@+id/frame_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
+        android:layout_height="match_parent"
+        app:layout_anchor="@+id/frame_layout"
+        app:layout_anchorGravity="center" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
@@ -22,10 +23,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center"
         android:layout_margin="16dp"
-
         app:backgroundTint="@color/pink"
         app:tint="@color/white"
-        tools:ignore="SpeakableTextPresentCheck" />
+        tools:ignore="ContentDescription,SpeakableTextPresentCheck" />
 
 
     <com.google.android.material.bottomappbar.BottomAppBar
@@ -37,7 +37,7 @@
         app:fabCradleMargin="10dp"
         app:fabCradleRoundedCornerRadius="50dp" />
 
-    
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/BottomNavigationView"
         android:layout_width="match_parent"
@@ -46,6 +46,6 @@
         app:menu="@menu/bottom_menu"
         app:labelVisibilityMode="labeled"
         android:background="@android:color/transparent"
-       />
+        />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
