@@ -23,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ImageView imageProfile;
     private Button buttonChoosePhoto;
+    private Button buttonSave;
 
     private final ActivityResultLauncher<Intent> pickImageLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -48,13 +49,12 @@ public class MainActivity extends AppCompatActivity {
 
         imageProfile = findViewById(R.id.imageProfile);
         buttonChoosePhoto = findViewById(R.id.buttonChoosePhoto);
-
+        buttonSave = findViewById(R.id.buttonSave);
 
         imageProfile.setClipToOutline(true);
         imageProfile.setOutlineProvider(new ViewOutlineProvider() {
             @Override
             public void getOutline(View view, Outline outline) {
-
                 int width = view.getWidth();
                 int height = view.getHeight();
                 int radius = Math.min(width, height) / 2;
@@ -66,6 +66,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 openGallery();
+            }
+        });
+
+        buttonSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent intent = new Intent(MainActivity.this, MainPage.class);
+                startActivity(intent);
             }
         });
     }
