@@ -9,11 +9,10 @@
     android:background="@color/pink"
     tools:context=".MainPage">
 
-
     <FrameLayout
         android:id="@+id/frame_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="63dp"
         app:layout_anchor="@+id/frame_layout"
         app:layout_anchorGravity="center" />
 
@@ -27,7 +26,6 @@
         app:tint="@color/white"
         tools:ignore="ContentDescription,SpeakableTextPresentCheck" />
 
-
     <com.google.android.material.bottomappbar.BottomAppBar
         android:id="@+id/bottom_app_bar"
         android:layout_width="match_parent"
@@ -37,15 +35,24 @@
         app:fabCradleMargin="10dp"
         app:fabCradleRoundedCornerRadius="50dp" />
 
-
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/BottomNavigationView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        app:menu="@menu/bottom_menu"
-        app:labelVisibilityMode="labeled"
         android:background="@android:color/transparent"
-        />
+        app:labelVisibilityMode="labeled"
+        app:layout_anchor="@+id/bottom_app_bar"
+        app:layout_anchorGravity="center"
+        app:menu="@menu/bottom_menu" />
+
+
+    <SearchView
+        android:id="@+id/searchView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="600dp"
+        android:background="@drawable/searchview_border"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
