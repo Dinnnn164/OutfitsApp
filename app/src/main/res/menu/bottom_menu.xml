@@ -1,4 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
+<item
+    android:id="@+id/home"
+    android:title="Home"
+    android:icon="@drawable/baseline_home_24"/>
+
+    <item
+        android:id="@+id/Outfits"
+        android:title="Outfits"
+        android:icon="@drawable/baseline_checkroom_24"/>
+
+    <item
+        android:id="@+id/fab"
+        android:title=" "
+        android:enabled="false"/>
+
+    <item
+        android:id="@+id/Cloth.rating"
+        android:title="Rating"
+        android:icon="@drawable/baseline_auto_graph_24"/>
+
+    <item
+        android:id="@+id/Profile"
+        android:title="Profile"
+        android:icon="@drawable/baseline_person_24"/>
+
+
+
+
 </menu>
