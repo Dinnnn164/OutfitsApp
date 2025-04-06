@@ -14,7 +14,9 @@
         android:layout_width="match_parent"
         android:layout_height="63dp"
         app:layout_anchor="@+id/frame_layout"
-        app:layout_anchorGravity="center" />
+        app:layout_anchorGravity="center">
+
+    </FrameLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
@@ -24,7 +26,7 @@
         android:layout_margin="16dp"
         app:backgroundTint="@color/pink"
         app:tint="@color/white"
-        tools:ignore="ContentDescription,SpeakableTextPresentCheck" />
+        tools:ignore="ContentDescription,SpeakableTextPresentCheck,DuplicateClickableBoundsCheck" />
 
     <com.google.android.material.bottomappbar.BottomAppBar
         android:id="@+id/bottom_app_bar"
@@ -53,6 +55,29 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:layout_marginBottom="600dp"
-        android:background="@drawable/searchview_border"/>
+        android:background="@drawable/searchview_border" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:padding="16dp"
+        android:text="Your Wardrobe"
+        android:textColor="@color/black"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        app:layout_anchor="@+id/frame_layout"
+        app:layout_anchorGravity="center"
+      />
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="?android:attr/windowBackground"
+        app:menu="@menu/bottom_menu" />
+
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
