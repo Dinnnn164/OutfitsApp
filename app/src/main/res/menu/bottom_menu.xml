@@ -12,11 +12,6 @@
         android:icon="@drawable/baseline_checkroom_24"/>
 
     <item
-        android:id="@+id/fab"
-        android:title=" "
-        android:enabled="false"/>
-
-    <item
         android:id="@+id/Cloth.rating"
         android:title="Rating"
         android:icon="@drawable/baseline_auto_graph_24"/>
