@@ -34,18 +34,26 @@ public class MainActivity extends AppCompatActivity {
             new ActivityResultCallback<ActivityResult>() {
                 @Override
                 public void onActivityResult(ActivityResult result) {
-                    selectedImageUri = result.getData().getData();
-
                     if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                        Uri selectedImageUri = result.getData().getData();
-                        try {
-                            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImageUri);
-                            imageProfile.setImageBitmap(bitmap);
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                        selectedImageUri = result.getData().getData();
+
+                        if (selectedImageUri != null) {
+
+                            getContentResolver().takePersistableUriPermission(
+                                    selectedImageUri,
+                                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                            );
+
+                            try {
+                                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImageUri);
+                                imageProfile.setImageBitmap(bitmap);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                         }
                     }
                 }
+
             });
 
         @Override
@@ -102,9 +110,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
     private void openGallery() {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.setType("image/*");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
         pickImageLauncher.launch(intent);
-
     }
+
 }

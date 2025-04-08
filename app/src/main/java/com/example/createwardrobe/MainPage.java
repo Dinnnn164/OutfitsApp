@@ -1,6 +1,7 @@
 package com.example.createwardrobe;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,11 +29,24 @@ public class MainPage extends AppCompatActivity {
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
             if (id == R.id.Profile) {
-                startActivity(new Intent(MainPage.this, Profile.class));
+
+                SharedPreferences prefs = getSharedPreferences("userProfile", MODE_PRIVATE);
+                String name = prefs.getString("name", "");
+                String nickname = prefs.getString("nickname", "");
+                String imageUri = prefs.getString("imageUri", "");
+
+
+                Intent profileIntent = new Intent(MainPage.this, Profile.class);
+                profileIntent.putExtra("name", name);
+                profileIntent.putExtra("nickname", nickname);
+                profileIntent.putExtra("imageUri", imageUri);
+
+                startActivity(profileIntent);
                 return true;
             }
 
-             if (id == R.id.Outfits) {
+
+            if (id == R.id.Outfits) {
                  startActivity(new Intent(MainPage.this, Outfits.class));
                  return true;
              }
