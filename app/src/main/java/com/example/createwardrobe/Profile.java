@@ -4,9 +4,12 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.ImageDecoder;
+import android.graphics.Outline;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewOutlineProvider;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,7 +17,6 @@ import android.provider.MediaStore;
 import android.widget.Toast;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 public class Profile extends AppCompatActivity {
 
@@ -32,6 +34,18 @@ public class Profile extends AppCompatActivity {
         textName = findViewById(R.id.textName);
         textNickname = findViewById(R.id.textNickname);
 
+        
+        imageProfile.setClipToOutline(true);
+        imageProfile.setOutlineProvider(new ViewOutlineProvider() {
+            @Override
+            public void getOutline(View view, Outline outline) {
+                int width = view.getWidth();
+                int height = view.getHeight();
+                int radius = Math.min(width, height) / 2;
+                outline.setRoundRect(0, 0, width, height, radius);
+            }
+        });
+
         Intent intent = getIntent();
         String name = intent.getStringExtra("name");
         String nickname = intent.getStringExtra("nickname");
@@ -46,29 +60,34 @@ public class Profile extends AppCompatActivity {
                 Log.d("Profile", "Received URI: " + imageUriStr);
 
 
-                InputStream inputStream = getContentResolver().openInputStream(imageUri);
-                if (inputStream == null) {
-                    throw new IOException("Cannot open image URI stream");
-                }
-                inputStream.close();
-
-                Bitmap bitmap;
-                if (android.os.Build.VERSION.SDK_INT >= 29) {
-                    ImageDecoder.Source source = ImageDecoder.createSource(this.getContentResolver(), imageUri);
-                    bitmap = ImageDecoder.decodeBitmap(source);
+                Bitmap bitmap = loadImage(imageUri);
+                if (bitmap != null) {
+                    imageProfile.setImageBitmap(bitmap);
+                    Log.d("Profile", "Bitmap set successfully");
                 } else {
-                    bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+                    Log.e("Profile", "Failed to load bitmap");
                 }
-
-                imageProfile.setImageBitmap(bitmap);
-                Log.d("Profile", "Bitmap set successfully");
-            } catch (IOException | IllegalArgumentException e) {
+            } catch (Exception e) {
                 Toast.makeText(this, "Не вдалося завантажити фото профілю", Toast.LENGTH_SHORT).show();
-                Log.e("Profile", "Помилка завантаження фото", e);
-                e.printStackTrace();
+                Log.e("Profile", "Error loading image", e);
             }
         } else {
             Log.d("Profile", "imageUriStr is null or empty");
+        }
+    }
+
+    private Bitmap loadImage(Uri imageUri) {
+        try {
+
+            if (android.os.Build.VERSION.SDK_INT >= 29) {
+                ImageDecoder.Source source = ImageDecoder.createSource(this.getContentResolver(), imageUri);
+                return ImageDecoder.decodeBitmap(source);
+            } else {
+                return MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+            }
+        } catch (IOException e) {
+            Log.e("Profile", "Error loading image from URI", e);
+            return null;
         }
     }
 }
