@@ -1,3 +1,53 @@
 <resources>
     <string name="app_name">CreateWardrobe</string>
+
+
+    <string name="tops">Верх</string>
+    <string name="bottoms">Низ</string>
+    <string name="outerwear">Верхній одяг</string>
+    <string name="full_body">Суцільний</string>
+    <string name="footwear">Взуття</string>
+    <string name="accessories">Аксесуари</string>
+    <string name="intimates">Нижня білизна</string>
+
+ 
+    <string-array name="tops">
+        <item>Футболка</item>
+        <item>Сорочка</item>
+        <item>Светр</item>
+    </string-array>
+
+    <string-array name="bottoms">
+        <item>Джинси</item>
+        <item>Шорти</item>
+        <item>Спідниця</item>
+    </string-array>
+
+    <string-array name="outerwear">
+        <item>Куртка</item>
+        <item>Пальто</item>
+        <item>Плащ</item>
+    </string-array>
+
+    <string-array name="full_body">
+        <item>Сукня</item>
+        <item>Комбінезон</item>
+    </string-array>
+
+    <string-array name="footwear">
+        <item>Кросівки</item>
+        <item>Туфлі</item>
+        <item>Ботинки</item>
+    </string-array>
+
+    <string-array name="accessories">
+        <item>Годинник</item>
+        <item>Сумка</item>
+        <item>Окуляри</item>
+    </string-array>
+
+    <string-array name="intimates">
+        <item>Білизна</item>
+        <item>Піжама</item>
+    </string-array>
 </resources>

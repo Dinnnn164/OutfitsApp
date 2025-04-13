@@ -1,49 +1,118 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:background="#F5F5F3"
+    android:padding="24dp"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="16dp">
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/imagePreview"
+        android:layout_width="232dp"
+        android:layout_height="176dp"
+        android:layout_marginBottom="16dp"
+        android:padding="4dp"
+        android:scaleType="centerCrop"
+        android:layout_gravity="center_horizontal" />
+
+    <TextView
+        android:id="@+id/garmentTypeTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Тип одягу"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:paddingBottom="16dp" />
+
+    <Spinner
+        android:id="@+id/spinnerTops"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:minHeight="48dp"
+        android:prompt="@string/tops" />
+
+    <Spinner
+        android:id="@+id/spinnerBottoms"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:minHeight="48dp"
+        android:prompt="@string/bottoms" />
+
+    <Spinner
+        android:id="@+id/spinnerOuterwear"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:minHeight="48dp"
+        android:prompt="@string/outerwear" />
+
+    <Spinner
+        android:id="@+id/spinnerFullBody"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:minHeight="48dp"
+        android:prompt="@string/full_body" />
+
+    <Spinner
+        android:id="@+id/spinnerFootwear"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:minHeight="48dp"
+        android:prompt="@string/footwear" />
+
+    <Spinner
+        android:id="@+id/spinnerAccessories"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:minHeight="48dp"
+        android:prompt="@string/accessories" />
+
+    <Spinner
+        android:id="@+id/spinnerIntimates"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:minHeight="48dp"
+        android:prompt="@string/intimates" />
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:weightSum="2">
 
-        <ImageView
-            android:id="@+id/imagePreview"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:scaleType="centerCrop" />
-
-        <EditText
-            android:id="@+id/nameInput"
-            android:layout_width="match_parent"
+        <Button
+            android:id="@+id/applyButton"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:hint="Назва одягу"
-            android:minHeight="48dp" />
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/black_button_rounded"
+            android:backgroundTint="#000000"
+            android:padding="12dp"
+            android:text="Застосувати"
+            android:textColor="#FFFFFF"
+            tools:ignore="TouchTargetSizeCheck" />
 
-        <EditText
-            android:id="@+id/sizeInput"
-            android:layout_width="match_parent"
+        <Button
+            android:id="@+id/cancelButton"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:hint="Розмір"
-            android:minHeight="48dp" />
-
-        <EditText
-            android:id="@+id/brandInput"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Бренд"
-            android:minHeight="48dp" />
-
-        <Spinner
-            android:id="@+id/seasonSpinner"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:minHeight="48dp" />
-
-       
-
+            android:layout_weight="1"
+            android:background="@drawable/white_button_rounded"
+            android:backgroundTint="#FFFFFF"
+            android:padding="12dp"
+            android:text="Скасувати"
+            android:textColor="#000000"
+            tools:ignore="TouchTargetSizeCheck" />
     </LinearLayout>
-</ScrollView>
+
+</LinearLayout>
