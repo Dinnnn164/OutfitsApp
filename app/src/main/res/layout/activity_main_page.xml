@@ -32,6 +32,8 @@
         app:tint="@color/white"
         tools:ignore="ContentDescription,SpeakableTextPresentCheck" />
 
+
+
     <com.google.android.material.bottomappbar.BottomAppBar
         android:id="@+id/bottom_app_bar"
         android:layout_width="match_parent"
@@ -41,14 +43,6 @@
         app:fabCradleMargin="10dp"
         app:fabCradleRoundedCornerRadius="50dp" />
 
-
-    <SearchView
-        android:id="@+id/searchView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_marginBottom="600dp"
-        android:background="@drawable/searchview_border" />
 
     <TextView
         android:id="@+id/textView"
