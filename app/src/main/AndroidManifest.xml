@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
@@ -20,6 +19,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CreateWardrobe"
         tools:targetApi="31">
+        <activity
+            android:name=".ClothingDetailsActivity"
+            android:exported="false" />
         <activity
             android:name=".Rating"
             android:exported="false" />

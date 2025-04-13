@@ -70,7 +70,7 @@ public class MainPage extends AppCompatActivity {
 
         FloatingActionButton fab = findViewById(R.id.fab);
 
-     
+
         cameraLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
@@ -78,11 +78,13 @@ public class MainPage extends AppCompatActivity {
                         Bundle extras = result.getData().getExtras();
                         Bitmap imageBitmap = (Bitmap) extras.get("data");
 
-
-                        Toast.makeText(this, "Фото зроблено", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(MainPage.this, ClothingDetailsActivity.class);
+                        intent.putExtra("imageBitmap", imageBitmap);
+                        startActivity(intent);
                     }
                 }
         );
+
 
         fab.setOnClickListener(v -> {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
@@ -103,7 +105,6 @@ public class MainPage extends AppCompatActivity {
             Toast.makeText(this, "Не вдалося відкрити камеру", Toast.LENGTH_SHORT).show();
         }
     }
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
