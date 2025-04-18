@@ -9,109 +9,179 @@
 
     <ImageView
         android:id="@+id/imagePreview"
-        android:layout_width="232dp"
-        android:layout_height="176dp"
+        android:layout_width="186dp"
+        android:layout_height="120dp"
+        android:layout_gravity="center_horizontal"
         android:layout_marginBottom="16dp"
         android:padding="4dp"
-        android:scaleType="centerCrop"
-        android:layout_gravity="center_horizontal" />
+        android:scaleType="centerCrop" />
 
     <TextView
-        android:id="@+id/garmentTypeTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Тип одягу"
-        android:textSize="24sp"
+        android:text="Type of garment"
         android:textStyle="bold"
+        android:textSize="18sp"
+        android:layout_marginTop="16dp" />
+
+    <Spinner
+        android:id="@+id/spinnerType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:minHeight="48dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Brand"
+        android:textStyle="bold"
+        android:textSize="18sp" />
+
+    <EditText
+        android:id="@+id/editBrand"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:hint="Enter brand"
+        android:minHeight="48dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Material"
+        android:textStyle="bold"
+        android:textSize="18sp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <EditText
+            android:id="@+id/editMaterial"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Choose material"
+            tools:ignore="TouchTargetSizeCheck" />
+
+        <ImageButton
+            android:id="@+id/btnAddMaterial"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_input_add"
+            tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Size"
+        android:textStyle="bold"
+        android:textSize="18sp" />
+
+
+
+    <LinearLayout
+        android:id="@+id/sizeLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:gravity="center"
-        android:paddingBottom="16dp" />
+        android:layout_marginBottom="16dp">
 
-    <Spinner
-        android:id="@+id/spinnerTops"
+        <Button
+            android:id="@+id/btnS"
+            style="@style/SizeButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="4dp"
+            android:text="S" />
+
+        <Button
+            android:id="@+id/btnM"
+            style="@style/SizeButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="4dp"
+            android:text="M" />
+
+        <Button
+            android:id="@+id/btnL"
+            style="@style/SizeButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="4dp"
+            android:text="L" />
+
+        <Button
+            android:id="@+id/btnXL"
+            style="@style/SizeButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="4dp"
+            android:text="XL" />
+
+        <Button
+            android:id="@+id/btnXXL"
+            style="@style/SizeButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="4dp"
+            android:text="XXL" />
+    </LinearLayout>
+
+
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:minHeight="48dp"
-        android:prompt="@string/tops" />
+        android:text="Category"
+        android:textStyle="bold"
+        android:textSize="18sp" />
 
-    <Spinner
-        android:id="@+id/spinnerBottoms"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:minHeight="48dp"
-        android:prompt="@string/bottoms" />
-
-    <Spinner
-        android:id="@+id/spinnerOuterwear"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:minHeight="48dp"
-        android:prompt="@string/outerwear" />
-
-    <Spinner
-        android:id="@+id/spinnerFullBody"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:minHeight="48dp"
-        android:prompt="@string/full_body" />
-
-    <Spinner
-        android:id="@+id/spinnerFootwear"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:minHeight="48dp"
-        android:prompt="@string/footwear" />
-
-    <Spinner
-        android:id="@+id/spinnerAccessories"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:minHeight="48dp"
-        android:prompt="@string/accessories" />
-
-    <Spinner
-        android:id="@+id/spinnerIntimates"
+    <EditText
+        android:id="@+id/editCategory"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
-        android:minHeight="48dp"
-        android:prompt="@string/intimates" />
+        android:hint="Enter tag"
+        android:minHeight="48dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
-        android:weightSum="2">
+        android:layout_marginTop="24dp">
 
         <Button
-            android:id="@+id/applyButton"
+            android:id="@+id/btnApply"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
             android:layout_weight="1"
-            android:background="@drawable/black_button_rounded"
-            android:backgroundTint="#000000"
-            android:padding="12dp"
-            android:text="Застосувати"
-            android:textColor="#FFFFFF"
+            android:background="@color/pink"
+            android:text="Apply"
+            android:textColor="#546E7A"
+            android:textStyle="bold"
             tools:ignore="TouchTargetSizeCheck" />
 
         <Button
-            android:id="@+id/cancelButton"
+            android:id="@+id/btnCancel"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@drawable/white_button_rounded"
-            android:backgroundTint="#FFFFFF"
-            android:padding="12dp"
-            android:text="Скасувати"
-            android:textColor="#000000"
+            android:background="@android:color/darker_gray"
+            android:text="Cancel"
+            android:textColor="#455A64"
+            android:textStyle="bold"
             tools:ignore="TouchTargetSizeCheck" />
     </LinearLayout>
 

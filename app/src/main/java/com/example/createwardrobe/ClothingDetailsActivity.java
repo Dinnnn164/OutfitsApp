@@ -1,63 +1,88 @@
-package com.example.createwardrobe;
+    package com.example.createwardrobe;
 
-import android.annotation.SuppressLint;
-import android.graphics.Bitmap;
-import android.os.Bundle;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.Spinner;
-import android.widget.Toast;
+    import android.annotation.SuppressLint;
+    import android.os.Bundle;
+    import android.view.View;
+    import android.widget.*;
+    import androidx.appcompat.app.AppCompatActivity;
 
-import androidx.appcompat.app.AppCompatActivity;
+    public class ClothingDetailsActivity extends AppCompatActivity {
 
-public class ClothingDetailsActivity extends AppCompatActivity {
+        Spinner spinnerType;
+        EditText editBrand, editMaterial, editCategory;
+        ImageButton btnAddMaterial;
+        Button btnS, btnM, btnL, btnXL, btnXXL, btnApply, btnCancel;
+        String selectedSize = "";
 
-    ImageView imagePreview;
+        @SuppressLint("MissingInflatedId")
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_clothing_details);
 
-    Spinner spinnerTops, spinnerBottoms, spinnerOuterwear,
-            spinnerFullBody, spinnerFootwear, spinnerAccessories, spinnerIntimates;
+            spinnerType = findViewById(R.id.spinnerType);
+            editBrand = findViewById(R.id.editBrand);
+            editMaterial = findViewById(R.id.editMaterial);
+            editCategory = findViewById(R.id.editCategory);
+            btnAddMaterial = findViewById(R.id.btnAddMaterial);
 
-    @SuppressLint("MissingInflatedId")
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_clothing_details);
+            btnS = findViewById(R.id.btnS);
+            btnM = findViewById(R.id.btnM);
+            btnL = findViewById(R.id.btnL);
+            btnXL = findViewById(R.id.btnXL);
+            btnXXL = findViewById(R.id.btnXXL);
 
-        imagePreview = findViewById(R.id.imagePreview);
+            btnApply = findViewById(R.id.btnApply);
+            btnCancel = findViewById(R.id.btnCancel);
 
 
-        Bitmap imageBitmap = getIntent().getParcelableExtra("imageBitmap");
-        if (imageBitmap != null) {
-            imagePreview.setImageBitmap(imageBitmap);
-        } else {
-            Toast.makeText(this, "Зображення не знайдено", Toast.LENGTH_SHORT).show();
+            ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                    this,
+                    R.array.garment_types,
+                    android.R.layout.simple_spinner_item
+            );
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinnerType.setAdapter(adapter);
+
+
+            View.OnClickListener sizeClickListener = v -> {
+                Button clicked = (Button) v;
+                selectedSize = clicked.getText().toString();
+
+                for (Button btn : new Button[]{btnS, btnM, btnL, btnXL, btnXXL}) {
+                    btn.setBackgroundColor(getResources().getColor(android.R.color.white));
+                }
+                clicked.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
+            };
+
+            btnS.setOnClickListener(sizeClickListener);
+            btnM.setOnClickListener(sizeClickListener);
+            btnL.setOnClickListener(sizeClickListener);
+            btnXL.setOnClickListener(sizeClickListener);
+            btnXXL.setOnClickListener(sizeClickListener);
+
+            btnAddMaterial.setOnClickListener(v -> {
+                String material = editMaterial.getText().toString();
+                if (!material.isEmpty()) {
+                    Toast.makeText(this, "Матеріал додано: " + material, Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            btnApply.setOnClickListener(v -> {
+                String type = spinnerType.getSelectedItem().toString();
+                String brand = editBrand.getText().toString();
+                String material = editMaterial.getText().toString();
+                String category = editCategory.getText().toString();
+
+                Toast.makeText(this,
+                        "Збережено:\nТип: " + type +
+                                "\nБренд: " + brand +
+                                "\nМатеріал: " + material +
+                                "\nРозмір: " + selectedSize +
+                                "\nКатегорія: " + category,
+                        Toast.LENGTH_LONG).show();
+            });
+
+            btnCancel.setOnClickListener(v -> finish());
         }
-
-
-        spinnerTops = findViewById(R.id.spinnerTops);
-        spinnerBottoms = findViewById(R.id.spinnerBottoms);
-        spinnerOuterwear = findViewById(R.id.spinnerOuterwear);
-        spinnerFullBody = findViewById(R.id.spinnerFullBody);
-        spinnerFootwear = findViewById(R.id.spinnerFootwear);
-        spinnerAccessories = findViewById(R.id.spinnerAccessories);
-        spinnerIntimates = findViewById(R.id.spinnerIntimates);
-
-
-        setupSpinner(spinnerTops, R.array.tops);
-        setupSpinner(spinnerBottoms, R.array.bottoms);
-        setupSpinner(spinnerOuterwear, R.array.outerwear);
-        setupSpinner(spinnerFullBody, R.array.full_body);
-        setupSpinner(spinnerFootwear, R.array.footwear);
-        setupSpinner(spinnerAccessories, R.array.accessories);
-        setupSpinner(spinnerIntimates, R.array.intimates);
-
     }
-
-    private void setupSpinner(Spinner spinner, int arrayResId) {
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-                this, arrayResId, android.R.layout.simple_spinner_item
-        );
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
-    }
-}
