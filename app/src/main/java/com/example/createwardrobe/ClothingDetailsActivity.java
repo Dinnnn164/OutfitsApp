@@ -10,9 +10,8 @@ import androidx.appcompat.app.AppCompatActivity;
 public class ClothingDetailsActivity extends AppCompatActivity {
 
     ImageView imagePreview;
-    Spinner spinnerType;
-    EditText editBrand, editMaterial, editCategory;
-    ImageButton btnAddMaterial;
+    Spinner spinnerType, spinnerMaterial;
+    EditText editBrand, editCategory;
     Button btnS, btnM, btnL, btnXL, btnXXL, btnApply, btnCancel;
     String selectedSize = "";
 
@@ -22,7 +21,6 @@ public class ClothingDetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_clothing_details);
 
-        
         imagePreview = findViewById(R.id.imagePreview);
         Bitmap imageBitmap = getIntent().getParcelableExtra("imageBitmap");
         if (imageBitmap != null) {
@@ -31,30 +29,36 @@ public class ClothingDetailsActivity extends AppCompatActivity {
             Toast.makeText(this, "Зображення не знайдено", Toast.LENGTH_SHORT).show();
         }
 
+        spinnerType = findViewById(R.id.spinnerType);
+        spinnerMaterial = findViewById(R.id.spinnerMaterial);
+        editBrand = findViewById(R.id.editBrand);
+        editCategory = findViewById(R.id.editCategory);
 
-        spinnerType    = findViewById(R.id.spinnerType);
-        editBrand      = findViewById(R.id.editBrand);
-        editMaterial   = findViewById(R.id.editMaterial);
-        editCategory   = findViewById(R.id.editCategory);
-        btnAddMaterial = findViewById(R.id.btnAddMaterial);
-
-        btnS    = findViewById(R.id.btnS);
-        btnM    = findViewById(R.id.btnM);
-        btnL    = findViewById(R.id.btnL);
-        btnXL   = findViewById(R.id.btnXL);
-        btnXXL  = findViewById(R.id.btnXXL);
-
-        btnApply  = findViewById(R.id.btnApply);
+        btnS = findViewById(R.id.btnS);
+        btnM = findViewById(R.id.btnM);
+        btnL = findViewById(R.id.btnL);
+        btnXL = findViewById(R.id.btnXL);
+        btnXXL = findViewById(R.id.btnXXL);
+        btnApply = findViewById(R.id.btnApply);
         btnCancel = findViewById(R.id.btnCancel);
 
 
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+        ArrayAdapter<CharSequence> typeAdapter = ArrayAdapter.createFromResource(
                 this,
                 R.array.garment_types,
                 android.R.layout.simple_spinner_item
         );
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerType.setAdapter(adapter);
+        typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerType.setAdapter(typeAdapter);
+
+
+        ArrayAdapter<CharSequence> materialAdapter = ArrayAdapter.createFromResource(
+                this,
+                R.array.material_types,
+                android.R.layout.simple_spinner_item
+        );
+        materialAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerMaterial.setAdapter(materialAdapter);
 
 
         View.OnClickListener sizeClickListener = v -> {
@@ -74,18 +78,10 @@ public class ClothingDetailsActivity extends AppCompatActivity {
         btnXXL.setOnClickListener(sizeClickListener);
 
 
-        btnAddMaterial.setOnClickListener(v -> {
-            String mat = editMaterial.getText().toString().trim();
-            if (!mat.isEmpty()) {
-                Toast.makeText(this, "Матеріал додано: " + mat, Toast.LENGTH_SHORT).show();
-            }
-        });
-
-
         btnApply.setOnClickListener(v -> {
-            String type     = spinnerType.getSelectedItem().toString();
-            String brand    = editBrand.getText().toString().trim();
-            String material = editMaterial.getText().toString().trim();
+            String type = spinnerType.getSelectedItem().toString();
+            String brand = editBrand.getText().toString().trim();
+            String material = spinnerMaterial.getSelectedItem().toString();
             String category = editCategory.getText().toString().trim();
 
             Toast.makeText(this,
@@ -98,7 +94,6 @@ public class ClothingDetailsActivity extends AppCompatActivity {
                     Toast.LENGTH_LONG
             ).show();
         });
-
 
         btnCancel.setOnClickListener(v -> finish());
     }

@@ -8,4 +8,19 @@
         <item>Аксесуари</item>
         <item>Нижня білизна</item>
     </string-array>
+
+    <string-array name="material_types">
+        <item>Баво́вна</item>
+        <item>Поліе́стер</item>
+        <item>Во́вна</item>
+        <item>Шовк</item>
+        <item>Льон</item>
+        <item>Джинсова тканина</item>
+        <item>Шкіра</item>
+        <item>Замша</item>
+        <item>Нейло́н</item>
+        <item>Спанде́кс</item>
+        <item>Оксами́т</item>
+        <item>Кашмі́р</item>
+    </string-array>
 </resources>

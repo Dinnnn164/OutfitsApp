@@ -19,10 +19,10 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:text="Type of garment"
-        android:textStyle="bold"
         android:textSize="18sp"
-        android:layout_marginTop="16dp" />
+        android:textStyle="bold" />
 
     <Spinner
         android:id="@+id/spinnerType"
@@ -45,7 +45,6 @@
         android:layout_marginBottom="16dp"
         android:hint="Enter brand"
         android:minHeight="48dp" />
-
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -53,27 +52,20 @@
         android:textStyle="bold"
         android:textSize="18sp" />
 
+    <Spinner
+        android:id="@+id/spinnerMaterial"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:minHeight="48dp" />
+
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginBottom="16dp">
 
-        <EditText
-            android:id="@+id/editMaterial"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="Choose material"
-            tools:ignore="TouchTargetSizeCheck" />
-
-        <ImageButton
-            android:id="@+id/btnAddMaterial"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_input_add"
-            tools:ignore="TouchTargetSizeCheck,SpeakableTextPresentCheck" />
     </LinearLayout>
 
     <TextView
@@ -165,23 +157,33 @@
         <Button
             android:id="@+id/btnApply"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
+            android:layout_marginEnd="8dp"
             android:layout_weight="1"
-            android:background="@color/pink"
+            android:background="@drawable/button_apply_selector"
+            android:elevation="2dp"
+            android:letterSpacing="0.02"
+            android:stateListAnimator="@null"
             android:text="Apply"
-            android:textColor="#546E7A"
+            android:textColor="@color/white"
+            android:textSize="16sp"
             android:textStyle="bold"
             tools:ignore="TouchTargetSizeCheck" />
 
         <Button
             android:id="@+id/btnCancel"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_weight="1"
-            android:background="@android:color/darker_gray"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/button_cancel_selector"
             android:text="Cancel"
-            android:textColor="#455A64"
+            android:textColor="@color/white"
+            android:textSize="16sp"
             android:textStyle="bold"
+            android:letterSpacing="0.02"
+            android:elevation="2dp"
+            android:stateListAnimator="@null"
             tools:ignore="TouchTargetSizeCheck" />
     </LinearLayout>
 
