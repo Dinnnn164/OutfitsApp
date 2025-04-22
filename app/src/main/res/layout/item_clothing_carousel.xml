@@ -1,0 +1,43 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp"
+    android:layout_margin="8dp"
+    android:background="@android:color/white"
+    android:elevation="2dp">
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:scaleType="centerCrop"
+        android:layout_gravity="center" />
+
+    <TextView
+        android:id="@+id/brandView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Бренд"
+        android:textStyle="bold"
+        android:paddingTop="4dp" />
+
+    <TextView
+        android:id="@+id/categoryView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Категорія" />
+
+    <TextView
+        android:id="@+id/sizeView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Розмір" />
+
+    <TextView
+        android:id="@+id/materialView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Матеріал" />
+</LinearLayout>
