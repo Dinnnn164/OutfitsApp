@@ -16,6 +16,18 @@
         app:layout_anchorGravity="center">
     </FrameLayout>
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/looks_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="70dp"
+        android:layout_marginBottom="70dp"
+        android:clipToPadding="false"
+        android:padding="8dp"
+        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+        app:spanCount="2"
+        tools:ignore="SpeakableTextPresentCheck"
+        tools:listitem="@layout/item_look" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
@@ -32,8 +44,6 @@
         app:tint="@color/white"
         tools:ignore="ContentDescription,SpeakableTextPresentCheck" />
 
-
-
     <com.google.android.material.bottomappbar.BottomAppBar
         android:id="@+id/bottom_app_bar"
         android:layout_width="match_parent"
@@ -42,7 +52,6 @@
         android:background="@color/white"
         app:fabCradleMargin="10dp"
         app:fabCradleRoundedCornerRadius="50dp" />
-
 
     <TextView
         android:id="@+id/textView"
@@ -55,8 +64,7 @@
         android:textSize="30sp"
         android:textStyle="bold"
         app:layout_anchor="@+id/frame_layout"
-        app:layout_anchorGravity="center"
-      />
+        app:layout_anchorGravity="center" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
@@ -68,5 +76,6 @@
         app:layout_anchor="@+id/bottom_app_bar"
         app:layout_anchorGravity="center"
         app:menu="@menu/bottom_menu" />
+
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

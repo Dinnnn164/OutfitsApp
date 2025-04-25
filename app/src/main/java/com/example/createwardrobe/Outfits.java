@@ -104,7 +104,7 @@ public class Outfits extends AppCompatActivity {
                             String type = document.getString("type");
                             if (type != null && clothingByType.containsKey(type)) {
                                 Map<String, Object> data = document.getData();
-                                data.put("id", document.getId()); // Додаємо ID документа
+                                data.put("id", document.getId());
                                 clothingByType.get(type).add(data);
                             }
                         }
