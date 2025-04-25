@@ -21,5 +21,28 @@
         <item>Спанде́кс</item>
         <item>Оксами́т</item>
         <item>Кашмі́р</item>
+        <item>Метал</item>
+        <item>Золото</item>
+        <item>Срібло</item>
+    </string-array>
+
+    <string-array name="outfit_types">
+        <item>На роботу</item>
+        <item>На побачення</item>
+        <item>На вечірку</item>
+        <item>Для спорту</item>
+        <item>Для прогулянки</item>
+        <item>Для відпочинку</item>
+        <item>Офісний стиль</item>
+        <item>Вечірній вихід</item>
+        <item>Повсякденний</item>
+        <item>Діловий</item>
+        <item>Романтичний</item>
+        <item>Літній</item>
+        <item>Зимовий</item>
+        <item>Домашній</item>
+        <item>Святковий</item>
     </string-array>
 </resources>
+
+

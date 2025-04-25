@@ -29,6 +29,8 @@ public class Outfits extends AppCompatActivity {
     private Button btnShowOutfit;
     private FirebaseFirestore db;
     private LinearLayout selectedItemsLayout;
+    private Spinner outfitTypeSpinner;
+    private EditText outfitNameInput;
 
     private final Map<String, List<Map<String, Object>>> clothingByType = new HashMap<>();
     private final Map<String, Map<String, Object>> selectedItems = new HashMap<>();
@@ -123,6 +125,34 @@ public class Outfits extends AppCompatActivity {
         selectedItems.clear();
 
 
+        LinearLayout namingLayout = new LinearLayout(this);
+        namingLayout.setOrientation(LinearLayout.VERTICAL);
+        namingLayout.setPadding(32, 16, 32, 16);
+
+        TextView nameLabel = new TextView(this);
+        nameLabel.setText("Назва луку:");
+        nameLabel.setTextSize(16);
+        namingLayout.addView(nameLabel);
+
+        outfitNameInput = new EditText(this);
+        outfitNameInput.setHint("Введіть назву");
+        namingLayout.addView(outfitNameInput);
+
+        TextView typeLabel = new TextView(this);
+        typeLabel.setText("Тип луку:");
+        typeLabel.setTextSize(16);
+        namingLayout.addView(typeLabel);
+
+        outfitTypeSpinner = new Spinner(this);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.outfit_types, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        outfitTypeSpinner.setAdapter(adapter);
+        namingLayout.addView(outfitTypeSpinner);
+
+        mainLayout.addView(namingLayout);
+
+
         TextView selectedHeader = new TextView(this);
         selectedHeader.setText("Вибраний одяг:");
         selectedHeader.setTextSize(18);
@@ -145,7 +175,6 @@ public class Outfits extends AppCompatActivity {
                 }
             }
         }
-
 
         mainLayout.addView(selectedItemsLayout);
 
@@ -173,7 +202,17 @@ public class Outfits extends AppCompatActivity {
             return;
         }
 
+        String outfitName = outfitNameInput.getText().toString().trim();
+        if (outfitName.isEmpty()) {
+            Toast.makeText(this, "Введіть назву луку", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String outfitType = outfitTypeSpinner.getSelectedItem().toString();
+
         Map<String, Object> outfit = new HashMap<>();
+        outfit.put("name", outfitName);
+        outfit.put("type", outfitType);
         outfit.put("timestamp", System.currentTimeMillis());
         outfit.put("items", selectedItems);
 
@@ -183,8 +222,10 @@ public class Outfits extends AppCompatActivity {
                     Toast.makeText(this, "Аутфіт збережено", Toast.LENGTH_SHORT).show();
                     finish();
                 })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Помилка збереження", Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> {
+                    Log.e("Outfits", "Error saving outfit", e);
+                    Toast.makeText(this, "Помилка збереження", Toast.LENGTH_SHORT).show();
+                });
     }
 
     private void addCarouselForType(String type) {
@@ -214,7 +255,6 @@ public class Outfits extends AppCompatActivity {
         ClothingCarouselAdapter adapter = new ClothingCarouselAdapter(items, item -> {
             selectedItems.put(type, item);
             updateSelectedItemsDisplay();
-
 
             Animation anim = AnimationUtils.loadAnimation(this, R.anim.slide_up);
             selectedItemsLayout.startAnimation(anim);
@@ -256,7 +296,6 @@ public class Outfits extends AppCompatActivity {
             removeButton.setOnClickListener(v -> {
                 selectedItems.remove(entry.getKey());
                 updateSelectedItemsDisplay();
-
 
                 Animation anim = AnimationUtils.loadAnimation(this, R.anim.fade_out);
                 itemLayout.startAnimation(anim);
