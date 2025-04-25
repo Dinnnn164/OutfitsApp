@@ -1,17 +1,10 @@
 package com.example.createwardrobe;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.util.Base64;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.*;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
@@ -31,11 +24,14 @@ import java.util.*;
 public class Outfits extends AppCompatActivity {
 
     private LinearLayout mainLayout;
-    private MultiAutoCompleteTextView typeSelector;
     private Button btnShowOutfit;
     private FirebaseFirestore db;
+
     private final Map<String, List<Map<String, Object>>> clothingByType = new HashMap<>();
+    private final Map<String, Map<String, Object>> selectedItems = new HashMap<>();
     private final List<String> selectedTypes = new ArrayList<>();
+
+    private final Map<String, CheckBox> checkBoxMap = new HashMap<>();
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -47,7 +43,6 @@ public class Outfits extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
 
         mainLayout = findViewById(R.id.main);
-        typeSelector = findViewById(R.id.typeSelector);
         btnShowOutfit = findViewById(R.id.btnShowOutfit);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -56,31 +51,33 @@ public class Outfits extends AppCompatActivity {
             return insets;
         });
 
-        setupTypeSelector();
+        setupCheckboxes();
         setupShowButton();
     }
 
-    private void setupTypeSelector() {
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-                this, R.array.garment_types, android.R.layout.simple_dropdown_item_1line);
-        typeSelector.setAdapter(adapter);
-        typeSelector.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
-        typeSelector.setThreshold(1);
-
-        typeSelector.setOnItemClickListener((parent, view, position, id) -> {
-            String selected = parent.getItemAtPosition(position).toString();
-            if (!selectedTypes.contains(selected)) {
-                selectedTypes.add(selected);
-            }
-        });
+    private void setupCheckboxes() {
+        checkBoxMap.put("Верх", findViewById(R.id.checkTop));
+        checkBoxMap.put("Низ", findViewById(R.id.checkBottom));
+        checkBoxMap.put("Верхній одяг", findViewById(R.id.checkOuter));
+        checkBoxMap.put("Взуття", findViewById(R.id.checkFootwear));
+        checkBoxMap.put("Аксесуари", findViewById(R.id.checkAccessories));
+        checkBoxMap.put("Суцільний", findViewById(R.id.checkSolid));
     }
 
     private void setupShowButton() {
         btnShowOutfit.setOnClickListener(v -> {
+            selectedTypes.clear();
+            for (Map.Entry<String, CheckBox> entry : checkBoxMap.entrySet()) {
+                if (entry.getValue().isChecked()) {
+                    selectedTypes.add(entry.getKey());
+                }
+            }
+
             if (selectedTypes.isEmpty()) {
                 Toast.makeText(Outfits.this, "Виберіть хоча б один тип одягу", Toast.LENGTH_SHORT).show();
                 return;
             }
+
             fetchClothingItems();
         });
     }
@@ -112,6 +109,7 @@ public class Outfits extends AppCompatActivity {
 
     private void displayOutfit() {
         mainLayout.removeAllViews();
+
         List<String> displayOrder = Arrays.asList(
                 "Верхній одяг", "Верх", "Низ", "Взуття", "Аксесуари", "Суцільний"
         );
@@ -144,7 +142,21 @@ public class Outfits extends AppCompatActivity {
     }
 
     private void saveOutfit() {
-        Toast.makeText(this, "Аутфіт збережено", Toast.LENGTH_SHORT).show();
+        if (selectedItems.isEmpty()) {
+            Toast.makeText(this, "Виберіть хоча б один одяг", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Map<String, Object> outfit = new HashMap<>();
+        outfit.put("timestamp", System.currentTimeMillis());
+        outfit.put("items", selectedItems);
+
+        db.collection("outfits")
+                .add(outfit)
+                .addOnSuccessListener(documentReference ->
+                        Toast.makeText(this, "Аутфіт збережено", Toast.LENGTH_SHORT).show())
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Помилка збереження", Toast.LENGTH_SHORT).show());
     }
 
     private void addCarouselForType(String type) {
@@ -161,7 +173,7 @@ public class Outfits extends AppCompatActivity {
         RecyclerView recyclerView = new RecyclerView(this);
         recyclerView.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT));
+                600));
         recyclerView.setPadding(16, 0, 16, 16);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(
@@ -172,71 +184,10 @@ public class Outfits extends AppCompatActivity {
         snapHelper.attachToRecyclerView(recyclerView);
 
         ClothingCarouselAdapter adapter = new ClothingCarouselAdapter(items, item -> {
-            showClothingDetails(item);
+            selectedItems.put(type, item);
         });
         recyclerView.setAdapter(adapter);
 
         mainLayout.addView(recyclerView);
-    }
-
-    private void showClothingDetails(Map<String, Object> item) {
-        Toast.makeText(this, "Вибрано: " + item.get("brand"), Toast.LENGTH_SHORT).show();
-    }
-
-    private static class ClothingCarouselAdapter extends RecyclerView.Adapter<ClothingCarouselAdapter.ClothingViewHolder> {
-
-        private final List<Map<String, Object>> clothingItems;
-        private final OnItemClickListener listener;
-
-        interface OnItemClickListener {
-            void onItemClick(Map<String, Object> item);
-        }
-
-        public ClothingCarouselAdapter(List<Map<String, Object>> clothingItems, OnItemClickListener listener) {
-            this.clothingItems = clothingItems;
-            this.listener = listener;
-        }
-
-        @NonNull
-        @Override
-        public ClothingViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_clothing_carousel, parent, false);
-            return new ClothingViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull ClothingViewHolder holder, int position) {
-            Map<String, Object> item = clothingItems.get(position);
-            holder.bind(item);
-            holder.itemView.setOnClickListener(v -> listener.onItemClick(item));
-        }
-
-        @Override
-        public int getItemCount() {
-            return clothingItems.size();
-        }
-
-        static class ClothingViewHolder extends RecyclerView.ViewHolder {
-            private final ImageView imageView;
-
-            public ClothingViewHolder(@NonNull View itemView) {
-                super(itemView);
-                imageView = itemView.findViewById(R.id.imageView);
-            }
-
-            public void bind(Map<String, Object> item) {
-                if (item.containsKey("imageBase64")) {
-                    try {
-                        String base64String = item.get("imageBase64").toString();
-                        byte[] decodedBytes = Base64.decode(base64String, Base64.DEFAULT);
-                        Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
-                        imageView.setImageBitmap(bitmap);
-                    } catch (Exception e) {
-                        Log.e("ImageDecode", "Помилка при декодуванні зображення", e);
-                    }
-                }
-            }
-        }
     }
 }
