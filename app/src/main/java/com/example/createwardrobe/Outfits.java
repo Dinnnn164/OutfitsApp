@@ -1,20 +1,26 @@
 package com.example.createwardrobe;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SnapHelper;
 
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -107,7 +113,7 @@ public class Outfits extends AppCompatActivity {
     private void displayOutfit() {
         mainLayout.removeAllViews();
         List<String> displayOrder = Arrays.asList(
-                "Верхній одяг", "Верх", "Низ", "Взуття", "Аксесуари", "Нижня білизна", "Суцільний"
+                "Верхній одяг", "Верх", "Низ", "Взуття", "Аксесуари", "Суцільний"
         );
 
         boolean hasSolid = selectedTypes.contains("Суцільний");
@@ -121,6 +127,24 @@ public class Outfits extends AppCompatActivity {
                 }
             }
         }
+
+        if (!selectedTypes.isEmpty()) {
+            Button saveOutfitButton = new Button(this);
+            saveOutfitButton.setText("Зберегти аутфіт");
+            saveOutfitButton.setOnClickListener(v -> saveOutfit());
+
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
+            params.setMargins(32, 32, 32, 32);
+            saveOutfitButton.setLayoutParams(params);
+
+            mainLayout.addView(saveOutfitButton);
+        }
+    }
+
+    private void saveOutfit() {
+        Toast.makeText(this, "Аутфіт збережено", Toast.LENGTH_SHORT).show();
     }
 
     private void addCarouselForType(String type) {
@@ -130,43 +154,62 @@ public class Outfits extends AppCompatActivity {
         TextView typeHeader = new TextView(this);
         typeHeader.setText(type);
         typeHeader.setTextSize(18);
-        typeHeader.setPadding(0, 16, 0, 8);
+        typeHeader.setTextColor(ContextCompat.getColor(this, android.R.color.black));
+        typeHeader.setPadding(32, 16, 32, 8);
         mainLayout.addView(typeHeader);
 
         RecyclerView recyclerView = new RecyclerView(this);
         recyclerView.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT));
+        recyclerView.setPadding(16, 0, 16, 16);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(
                 this, LinearLayoutManager.HORIZONTAL, false);
         recyclerView.setLayoutManager(layoutManager);
 
-        ClothingCarouselAdapter adapter = new ClothingCarouselAdapter(items);
+        SnapHelper snapHelper = new PagerSnapHelper();
+        snapHelper.attachToRecyclerView(recyclerView);
+
+        ClothingCarouselAdapter adapter = new ClothingCarouselAdapter(items, item -> {
+            showClothingDetails(item);
+        });
         recyclerView.setAdapter(adapter);
 
         mainLayout.addView(recyclerView);
     }
 
-    private class ClothingCarouselAdapter extends RecyclerView.Adapter<ClothingCarouselAdapter.ClothingViewHolder> {
+    private void showClothingDetails(Map<String, Object> item) {
+        Toast.makeText(this, "Вибрано: " + item.get("brand"), Toast.LENGTH_SHORT).show();
+    }
+
+    private static class ClothingCarouselAdapter extends RecyclerView.Adapter<ClothingCarouselAdapter.ClothingViewHolder> {
 
         private final List<Map<String, Object>> clothingItems;
+        private final OnItemClickListener listener;
 
-        public ClothingCarouselAdapter(List<Map<String, Object>> clothingItems) {
-            this.clothingItems = clothingItems;
+        interface OnItemClickListener {
+            void onItemClick(Map<String, Object> item);
         }
 
+        public ClothingCarouselAdapter(List<Map<String, Object>> clothingItems, OnItemClickListener listener) {
+            this.clothingItems = clothingItems;
+            this.listener = listener;
+        }
+
+        @NonNull
         @Override
-        public ClothingViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        public ClothingViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.item_clothing_carousel, parent, false);
             return new ClothingViewHolder(view);
         }
 
         @Override
-        public void onBindViewHolder(ClothingViewHolder holder, int position) {
+        public void onBindViewHolder(@NonNull ClothingViewHolder holder, int position) {
             Map<String, Object> item = clothingItems.get(position);
             holder.bind(item);
+            holder.itemView.setOnClickListener(v -> listener.onItemClick(item));
         }
 
         @Override
@@ -174,32 +217,19 @@ public class Outfits extends AppCompatActivity {
             return clothingItems.size();
         }
 
-        class ClothingViewHolder extends RecyclerView.ViewHolder {
+        static class ClothingViewHolder extends RecyclerView.ViewHolder {
             private final ImageView imageView;
-            private final TextView brandView;
-            private final TextView categoryView;
-            private final TextView sizeView;
-            private final TextView materialView;
 
-            public ClothingViewHolder(View itemView) {
+            public ClothingViewHolder(@NonNull View itemView) {
                 super(itemView);
                 imageView = itemView.findViewById(R.id.imageView);
-                brandView = itemView.findViewById(R.id.brandView);
-                categoryView = itemView.findViewById(R.id.categoryView);
-                sizeView = itemView.findViewById(R.id.sizeView);
-                materialView = itemView.findViewById(R.id.materialView);
             }
 
             public void bind(Map<String, Object> item) {
-                brandView.setText(item.get("brand").toString());
-                categoryView.setText(item.get("category").toString());
-                sizeView.setText("Розмір: " + item.get("size").toString());
-                materialView.setText("Матеріал: " + item.get("material").toString());
-
                 if (item.containsKey("imageBase64")) {
                     try {
                         String base64String = item.get("imageBase64").toString();
-                        byte[] decodedBytes = android.util.Base64.decode(base64String, android.util.Base64.DEFAULT);
+                        byte[] decodedBytes = Base64.decode(base64String, Base64.DEFAULT);
                         Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
                         imageView.setImageBitmap(bitmap);
                     } catch (Exception e) {
