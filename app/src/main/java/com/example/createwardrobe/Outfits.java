@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.*;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -26,6 +28,7 @@ public class Outfits extends AppCompatActivity {
     private LinearLayout mainLayout;
     private Button btnShowOutfit;
     private FirebaseFirestore db;
+    private LinearLayout selectedItemsLayout;
 
     private final Map<String, List<Map<String, Object>>> clothingByType = new HashMap<>();
     private final Map<String, Map<String, Object>> selectedItems = new HashMap<>();
@@ -44,6 +47,8 @@ public class Outfits extends AppCompatActivity {
 
         mainLayout = findViewById(R.id.main);
         btnShowOutfit = findViewById(R.id.btnShowOutfit);
+        selectedItemsLayout = new LinearLayout(this);
+        selectedItemsLayout.setOrientation(LinearLayout.VERTICAL);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -66,6 +71,9 @@ public class Outfits extends AppCompatActivity {
 
     private void setupShowButton() {
         btnShowOutfit.setOnClickListener(v -> {
+            Animation anim = AnimationUtils.loadAnimation(this, R.anim.button_click);
+            v.startAnimation(anim);
+
             selectedTypes.clear();
             for (Map.Entry<String, CheckBox> entry : checkBoxMap.entrySet()) {
                 if (entry.getValue().isChecked()) {
@@ -95,7 +103,9 @@ public class Outfits extends AppCompatActivity {
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             String type = document.getString("type");
                             if (type != null && clothingByType.containsKey(type)) {
-                                clothingByType.get(type).add(document.getData());
+                                Map<String, Object> data = document.getData();
+                                data.put("id", document.getId()); // Додаємо ID документа
+                                clothingByType.get(type).add(data);
                             }
                         }
 
@@ -109,6 +119,16 @@ public class Outfits extends AppCompatActivity {
 
     private void displayOutfit() {
         mainLayout.removeAllViews();
+        selectedItemsLayout.removeAllViews();
+        selectedItems.clear();
+
+
+        TextView selectedHeader = new TextView(this);
+        selectedHeader.setText("Вибраний одяг:");
+        selectedHeader.setTextSize(18);
+        selectedHeader.setTextColor(ContextCompat.getColor(this, android.R.color.black));
+        selectedHeader.setPadding(32, 16, 32, 8);
+        selectedItemsLayout.addView(selectedHeader);
 
         List<String> displayOrder = Arrays.asList(
                 "Верхній одяг", "Верх", "Низ", "Взуття", "Аксесуари", "Суцільний"
@@ -126,6 +146,9 @@ public class Outfits extends AppCompatActivity {
             }
         }
 
+
+        mainLayout.addView(selectedItemsLayout);
+
         if (!selectedTypes.isEmpty()) {
             Button saveOutfitButton = new Button(this);
             saveOutfitButton.setText("Зберегти аутфіт");
@@ -136,6 +159,9 @@ public class Outfits extends AppCompatActivity {
                     LinearLayout.LayoutParams.WRAP_CONTENT);
             params.setMargins(32, 32, 32, 32);
             saveOutfitButton.setLayoutParams(params);
+
+            Animation anim = AnimationUtils.loadAnimation(this, R.anim.fade_in);
+            saveOutfitButton.startAnimation(anim);
 
             mainLayout.addView(saveOutfitButton);
         }
@@ -153,8 +179,10 @@ public class Outfits extends AppCompatActivity {
 
         db.collection("outfits")
                 .add(outfit)
-                .addOnSuccessListener(documentReference ->
-                        Toast.makeText(this, "Аутфіт збережено", Toast.LENGTH_SHORT).show())
+                .addOnSuccessListener(documentReference -> {
+                    Toast.makeText(this, "Аутфіт збережено", Toast.LENGTH_SHORT).show();
+                    finish();
+                })
                 .addOnFailureListener(e ->
                         Toast.makeText(this, "Помилка збереження", Toast.LENGTH_SHORT).show());
     }
@@ -185,9 +213,58 @@ public class Outfits extends AppCompatActivity {
 
         ClothingCarouselAdapter adapter = new ClothingCarouselAdapter(items, item -> {
             selectedItems.put(type, item);
+            updateSelectedItemsDisplay();
+
+
+            Animation anim = AnimationUtils.loadAnimation(this, R.anim.slide_up);
+            selectedItemsLayout.startAnimation(anim);
         });
         recyclerView.setAdapter(adapter);
 
+        Animation anim = AnimationUtils.loadAnimation(this, R.anim.slide_down);
+        recyclerView.startAnimation(anim);
+
         mainLayout.addView(recyclerView);
+    }
+
+    private void updateSelectedItemsDisplay() {
+        selectedItemsLayout.removeAllViews();
+
+        TextView selectedHeader = new TextView(this);
+        selectedHeader.setText("Вибраний одяг:");
+        selectedHeader.setTextSize(18);
+        selectedHeader.setTextColor(ContextCompat.getColor(this, android.R.color.black));
+        selectedHeader.setPadding(32, 16, 32, 8);
+        selectedItemsLayout.addView(selectedHeader);
+
+        for (Map.Entry<String, Map<String, Object>> entry : selectedItems.entrySet()) {
+            LinearLayout itemLayout = new LinearLayout(this);
+            itemLayout.setOrientation(LinearLayout.HORIZONTAL);
+            itemLayout.setPadding(16, 8, 16, 8);
+
+            TextView itemText = new TextView(this);
+            itemText.setText(entry.getKey() + ": " + entry.getValue().get("name"));
+            itemText.setTextSize(16);
+            itemText.setLayoutParams(new LinearLayout.LayoutParams(
+                    0,
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    1));
+
+            ImageButton removeButton = new ImageButton(this);
+            removeButton.setImageResource(android.R.drawable.ic_delete);
+            removeButton.setBackground(null);
+            removeButton.setOnClickListener(v -> {
+                selectedItems.remove(entry.getKey());
+                updateSelectedItemsDisplay();
+
+
+                Animation anim = AnimationUtils.loadAnimation(this, R.anim.fade_out);
+                itemLayout.startAnimation(anim);
+            });
+
+            itemLayout.addView(itemText);
+            itemLayout.addView(removeButton);
+            selectedItemsLayout.addView(itemLayout);
+        }
     }
 }
