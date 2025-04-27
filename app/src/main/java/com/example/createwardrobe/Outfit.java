@@ -1,21 +1,27 @@
 package com.example.createwardrobe;
 
+import java.util.List;
+
 public class Outfit {
     private String id;
     private String name;
-    private String imageBase64;
+    private List<String> imageBase64List; // список всіх зображень
 
-    public Outfit() {}
-
-    public Outfit(String id, String name, String imageBase64) {
+    public Outfit(String id, String name, List<String> imageBase64List) {
         this.id = id;
         this.name = name;
-        this.imageBase64 = imageBase64;
+        this.imageBase64List = imageBase64List;
     }
 
-    public String getId() { return id; }
+    public String getId() {
+        return id;
+    }
 
-    public String getName() { return name; }
+    public String getName() {
+        return name;
+    }
 
-    public String getImageBase64() { return imageBase64; }
+    public List<String> getImageBase64List() {
+        return imageBase64List;
+    }
 }

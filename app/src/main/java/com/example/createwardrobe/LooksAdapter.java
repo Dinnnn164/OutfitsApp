@@ -1,14 +1,11 @@
 package com.example.createwardrobe;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.util.Base64;
+import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -16,7 +13,7 @@ import java.util.List;
 
 public class LooksAdapter extends RecyclerView.Adapter<LooksAdapter.LookViewHolder> {
 
-    private final List<Outfit> outfitList;
+    private List<Outfit> outfitList;
 
     public LooksAdapter(List<Outfit> outfitList) {
         this.outfitList = outfitList;
@@ -25,21 +22,15 @@ public class LooksAdapter extends RecyclerView.Adapter<LooksAdapter.LookViewHold
     @NonNull
     @Override
     public LookViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_look, parent, false);
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_look, parent, false);
         return new LookViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull LookViewHolder holder, int position) {
         Outfit outfit = outfitList.get(position);
-        holder.nameTextView.setText(outfit.getName());
-
-
-        if (outfit.getImageBase64() != null && !outfit.getImageBase64().isEmpty()) {
-            byte[] decodedBytes = Base64.decode(outfit.getImageBase64(), Base64.DEFAULT);
-            Bitmap bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
-            holder.imageView.setImageBitmap(bitmap);
-        }
+        holder.bind(outfit);
     }
 
     @Override
@@ -47,14 +38,24 @@ public class LooksAdapter extends RecyclerView.Adapter<LooksAdapter.LookViewHold
         return outfitList.size();
     }
 
-    public static class LookViewHolder extends RecyclerView.ViewHolder {
-        ImageView imageView;
-        TextView nameTextView;
+    public class LookViewHolder extends RecyclerView.ViewHolder {
+
+        private TextView lookName;
 
         public LookViewHolder(@NonNull View itemView) {
             super(itemView);
-            imageView = itemView.findViewById(R.id.look_image);
-            nameTextView = itemView.findViewById(R.id.look_name);
+            lookName = itemView.findViewById(R.id.look_name);
+        }
+
+        public void bind(Outfit outfit) {
+            lookName.setText(outfit.getName());
+
+            itemView.setOnClickListener(v -> {
+                Context context = itemView.getContext();
+                Intent intent = new Intent(context, LookDetailsActivity.class);
+                intent.putExtra("outfitId", outfit.getId());
+                context.startActivity(intent);
+            });
         }
     }
 }

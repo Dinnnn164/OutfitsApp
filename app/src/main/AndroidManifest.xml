@@ -19,6 +19,9 @@
         android:theme="@style/Theme.CreateWardrobe"
         tools:targetApi="31">
         <activity
+            android:name=".LookDetailsActivity"
+            android:exported="false" />
+        <activity
             android:name=".CreateOutfitActivity"
             android:exported="false" />
         <activity

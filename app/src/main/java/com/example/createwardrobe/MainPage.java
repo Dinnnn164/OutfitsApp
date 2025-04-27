@@ -28,6 +28,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class MainPage extends AppCompatActivity {
 
@@ -82,12 +83,26 @@ public class MainPage extends AppCompatActivity {
                     for (QueryDocumentSnapshot doc : value) {
                         String id = doc.getId();
                         String name = doc.getString("name");
-                        String imageBase64 = doc.getString("image");
-                        outfitList.add(new Outfit(id, name, imageBase64));
+
+                        List<String> images = new ArrayList<>();
+                        if (doc.contains("items")) {
+                            Map<String, Object> items = (Map<String, Object>) doc.get("items");
+                            for (Object itemObj : items.values()) {
+                                if (itemObj instanceof Map) {
+                                    Map<String, Object> item = (Map<String, Object>) itemObj;
+                                    if (item.containsKey("imageBase64")) {
+                                        images.add(item.get("imageBase64").toString());
+                                    }
+                                }
+                            }
+                        }
+
+                        outfitList.add(new Outfit(id, name, images));
                     }
                     adapter.notifyDataSetChanged();
                 });
     }
+
 
     private void setupListeners() {
 
