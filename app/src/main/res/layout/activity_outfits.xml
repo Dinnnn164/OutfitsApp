@@ -1,65 +1,117 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#F5F5F5">
 
     <LinearLayout
         android:id="@+id/main"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="24dp">
+
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Оберіть типи одягу для комплекту"
-            android:textSize="18sp"
-            android:layout_marginBottom="8dp"/>
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#333333"
+            android:gravity="center"
+            android:layout_marginBottom="24dp"/>
 
 
-        <CheckBox
-            android:id="@+id/checkTop"
-            android:layout_width="wrap_content"
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Верх" />
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="8dp"
+            android:padding="16dp"
+            android:layout_marginTop="16dp">
 
-        <CheckBox
-            android:id="@+id/checkBottom"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Низ" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:spacing="12dp">
 
-        <CheckBox
-            android:id="@+id/checkOuter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Верхній одяг" />
+                <CheckBox
+                    android:id="@+id/checkTop"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Верх"
+                    android:textSize="16sp"
+                    android:textColor="#555555"
+                    android:padding="8dp"/>
 
-        <CheckBox
-            android:id="@+id/checkFootwear"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Взуття" />
+                <CheckBox
+                    android:id="@+id/checkBottom"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Низ"
+                    android:textSize="16sp"
+                    android:textColor="#555555"
+                    android:padding="8dp"/>
 
-        <CheckBox
-            android:id="@+id/checkAccessories"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Аксесуари" />
+                <CheckBox
+                    android:id="@+id/checkOuter"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Верхній одяг"
+                    android:textSize="16sp"
+                    android:textColor="#555555"
+                    android:padding="8dp"/>
 
-        <CheckBox
-            android:id="@+id/checkSolid"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Суцільний" />
+                <CheckBox
+                    android:id="@+id/checkFootwear"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Взуття"
+                    android:textSize="16sp"
+                    android:textColor="#555555"
+                    android:padding="8dp"/>
+
+                <CheckBox
+                    android:id="@+id/checkAccessories"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Аксесуари"
+                    android:textSize="16sp"
+                    android:textColor="#555555"
+                    android:padding="8dp"/>
+
+                <CheckBox
+                    android:id="@+id/checkSolid"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Суцільний"
+                    android:textSize="16sp"
+                    android:textColor="#555555"
+                    android:padding="8dp"/>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
 
         <Button
             android:id="@+id/btnShowOutfit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:backgroundTint="@color/pink"
+            android:text="Показати комплект"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:elevation="6dp"
             android:layout_marginTop="16dp"
-            android:text="Показати комплект"/>
+            android:layout_marginBottom="16dp"
+            android:drawableLeft="@drawable/ic_check"
+
+            android:drawablePadding="8dp"
+             />
     </LinearLayout>
 </ScrollView>
