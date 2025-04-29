@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
+import com.example.createwardrobe.interfaces.OnItemClickListener;
 import java.util.List;
 import java.util.Map;
 
@@ -18,14 +18,12 @@ public class ClothingCarouselAdapter extends RecyclerView.Adapter<ClothingCarous
     private final List<Map<String, Object>> clothingItems;
     private final OnItemClickListener listener;
 
-    public interface OnItemClickListener {
-        void onItemClick(Map<String, Object> item);
-    }
 
     public ClothingCarouselAdapter(List<Map<String, Object>> clothingItems, OnItemClickListener listener) {
         this.clothingItems = clothingItems;
         this.listener = listener;
     }
+
 
     @NonNull
     @Override

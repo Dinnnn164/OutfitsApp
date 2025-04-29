@@ -1,33 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_margin="8dp"
-    android:elevation="6dp"
-    android:backgroundTint="@color/white"
-    app:cardCornerRadius="16dp">
+    android:layout_margin="10dp"
+    android:elevation="8dp"
+    android:backgroundTint="@color/pink"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="8dp">
 
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="12dp">
+<LinearLayout
+android:orientation="vertical"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:padding="16dp"
+android:gravity="center_horizontal"
+android:background="@color/white"
+android:clipToPadding="false">
 
-        <ImageView
-            android:id="@+id/look_image"
-            android:layout_width="match_parent"
-            android:layout_height="180dp"
-            android:scaleType="centerCrop"
-             />
+<ImageView
+    android:id="@+id/look_image"
+    android:layout_width="match_parent"
+    android:layout_height="200dp"
+    android:scaleType="centerCrop"
+    android:backgroundTint="@color/pink"
+android:contentDescription="Фото луку"
+android:adjustViewBounds="true"
+android:background="@drawable/rounded_image_background" />
 
-        <TextView
-            android:id="@+id/look_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Outfit Name"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:layout_marginTop="8dp"/>
-    </LinearLayout>
-</androidx.cardview.widget.CardView>
+<TextView
+    android:id="@+id/look_name"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="12dp"
+    android:text="Назва Луку"
+    android:textSize="20sp"
+    android:textColor="@color/pink"
+    android:textStyle="bold"
+    android:gravity="center" />
+</LinearLayout>
+
+    </androidx.cardview.widget.CardView>

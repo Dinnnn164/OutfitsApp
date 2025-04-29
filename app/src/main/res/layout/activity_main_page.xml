@@ -35,7 +35,7 @@
         android:layout_gravity="center"
         android:padding="16dp"
         android:text="Your Wardrobe"
-        android:textColor="@color/black"
+        android:textColor="@color/pink_dark"
         android:textSize="30sp"
         android:textStyle="bold"
         app:layout_anchor="@+id/frame_layout"
