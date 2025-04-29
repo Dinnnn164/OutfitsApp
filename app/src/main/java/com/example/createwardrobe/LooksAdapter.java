@@ -1,5 +1,7 @@
 package com.example.createwardrobe;
 
+import com.example.createwardrobe.classes.Outfit;
+
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;

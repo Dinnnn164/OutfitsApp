@@ -12,6 +12,8 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.Map;
 
+
+
 public class LookDetailsActivity extends AppCompatActivity {
 
     private LinearLayout imagesContainer;

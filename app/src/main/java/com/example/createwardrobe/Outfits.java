@@ -1,9 +1,10 @@
 package com.example.createwardrobe;
 
+
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
+
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.*;
@@ -17,9 +18,11 @@ import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
+
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+
 
 import java.util.*;
 
@@ -252,19 +255,7 @@ public class Outfits extends AppCompatActivity {
         SnapHelper snapHelper = new PagerSnapHelper();
         snapHelper.attachToRecyclerView(recyclerView);
 
-        ClothingCarouselAdapter adapter = new ClothingCarouselAdapter(items, item -> {
-            selectedItems.put(type, item);
-            updateSelectedItemsDisplay();
 
-            Animation anim = AnimationUtils.loadAnimation(this, R.anim.slide_up);
-            selectedItemsLayout.startAnimation(anim);
-        });
-        recyclerView.setAdapter(adapter);
-
-        Animation anim = AnimationUtils.loadAnimation(this, R.anim.slide_down);
-        recyclerView.startAnimation(anim);
-
-        mainLayout.addView(recyclerView);
     }
 
     private void updateSelectedItemsDisplay() {
