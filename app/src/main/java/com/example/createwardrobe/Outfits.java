@@ -3,7 +3,6 @@ package com.example.createwardrobe;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.*;

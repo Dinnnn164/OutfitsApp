@@ -1,4 +1,4 @@
-package com.example.createwardrobe;
+package com.example.createwardrobe.classes;
 
 import java.util.List;
 
