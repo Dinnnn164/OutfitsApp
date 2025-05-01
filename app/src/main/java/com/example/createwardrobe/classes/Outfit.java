@@ -1,6 +1,4 @@
-package com.example.createwardrobe.classes;
-
-
+package com.example.createwardrobe;
 
 import java.util.List;
 
@@ -27,4 +25,3 @@ public class Outfit {
         return imageBase64List;
     }
 }
-

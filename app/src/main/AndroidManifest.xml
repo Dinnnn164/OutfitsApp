@@ -21,9 +21,7 @@
         <activity
             android:name=".LookDetailsActivity"
             android:exported="false" />
-        <activity
-            android:name=".CreateOutfitActivity"
-            android:exported="false" />
+
         <activity
             android:name=".ClothingDetailsActivity"
             android:exported="false" />

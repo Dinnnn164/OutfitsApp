@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.createwardrobe.R;
 import com.example.createwardrobe.classes.ClothingViewHolder;
 import com.example.createwardrobe.interfaces.OnItemClickListener;
+
 import java.util.List;
 import java.util.Map;
 
