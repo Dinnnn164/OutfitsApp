@@ -1,4 +1,5 @@
 package com.example.createwardrobe;
+import com.example.createwardrobe.classes.Outfit;
 
 import android.Manifest;
 import android.content.Intent;

@@ -33,13 +33,20 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:padding="16dp"
-        android:text="Your Wardrobe"
+        android:padding="12dp"
+        android:text="Твій гардероб"
         android:textColor="@color/pink_dark"
-        android:textSize="30sp"
+        android:textSize="32sp"
         android:textStyle="bold"
+        android:fontFamily="sans-serif-medium"
+        android:letterSpacing="0.02"
+        android:shadowColor="#26000000"
+        android:shadowDx="1"
+        android:shadowDy="2"
+        android:shadowRadius="2"
         app:layout_anchor="@+id/frame_layout"
         app:layout_anchorGravity="center" />
+
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"

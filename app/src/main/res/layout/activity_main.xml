@@ -16,14 +16,20 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:text="Створити профіль"
-        android:textColor="#222222"
-        android:textSize="28sp"
+        android:textColor="@color/pink_dark"
+        android:textSize="32sp"
         android:textStyle="bold"
+        android:fontFamily="sans-serif-medium"
         android:gravity="center"
         android:layout_marginTop="32dp"
+        android:shadowColor="#55000000"
+        android:shadowDx="2"
+        android:shadowDy="2"
+        android:shadowRadius="2"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
 
 
     <ImageView
