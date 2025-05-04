@@ -214,7 +214,13 @@ public class Outfits extends AppCompatActivity {
         outfit.put("name", outfitName);
         outfit.put("type", outfitType);
         outfit.put("timestamp", System.currentTimeMillis());
-        outfit.put("items", selectedItems);
+
+        Map<String, Map<String, Object>> itemsToSave = new HashMap<>();
+        for (Map.Entry<String, Map<String, Object>> entry : selectedItems.entrySet()) {
+            Map<String, Object> itemDetails = new HashMap<>(entry.getValue());
+            itemsToSave.put(entry.getKey(), itemDetails);
+        }
+        outfit.put("items", itemsToSave);
 
         db.collection("outfits")
                 .add(outfit)

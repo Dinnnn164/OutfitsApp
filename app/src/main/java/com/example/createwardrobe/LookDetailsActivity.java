@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.createwardrobe.classes.ClothItem;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Calendar;
@@ -32,6 +33,8 @@ public class LookDetailsActivity extends AppCompatActivity {
     private static final String TAG = "LookDetailsActivity";
     private long selectedDateInMillis;
     private Map<String, ClothItem> lookClothItems = new HashMap<>();
+    private Map<String, String> itemIdToCategoryMap = new HashMap<>();
+    private Map<String, Map<String, Object>> lookItemDetails = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,12 +81,14 @@ public class LookDetailsActivity extends AppCompatActivity {
                             Map<String, Object> itemsMap = (Map<String, Object>) outfitData.get("items");
 
                             for (Map.Entry<String, Object> entry : itemsMap.entrySet()) {
+                                String itemId = entry.getKey();
                                 if (entry.getValue() instanceof Map) {
                                     Map<String, Object> itemData = (Map<String, Object>) entry.getValue();
                                     ClothItem clothItem = new ClothItem();
                                     clothItem.setImageBase64((String) itemData.get("imageBase64"));
 
-                                    lookClothItems.put(entry.getKey(), clothItem);
+                                    lookClothItems.put(itemId, clothItem);
+                                    lookItemDetails.put(itemId, itemData);
                                     addImageFromBase64(clothItem.getImageBase64());
                                 }
                             }
@@ -116,22 +121,29 @@ public class LookDetailsActivity extends AppCompatActivity {
     private void saveUsageDate(long dateInMillis) {
         for (Map.Entry<String, ClothItem> entry : lookClothItems.entrySet()) {
             String itemId = entry.getKey();
-            Map<String, Object> usageData = new HashMap<>();
-            usageData.put("lookId", lookId);
-            usageData.put("itemId", itemId);
-            usageData.put("wornDate", dateInMillis);
+            Map<String, Object> itemDetails = lookItemDetails.get(itemId);
+            if (itemDetails != null && itemDetails.containsKey("category")) {
+                String category = (String) itemDetails.get("category");
+                Map<String, Object> usageData = new HashMap<>();
+                usageData.put("lookId", lookId);
+                usageData.put("itemId", itemId);
+                usageData.put("wornDate", dateInMillis);
+                usageData.put("itemCategory", category);
 
-
-            db.collection("usage_history")
-                    .add(usageData)
-                    .addOnSuccessListener(documentReference -> {
-                        Log.d(TAG, "Usage data saved with ID: " + documentReference.getId());
-                        Toast.makeText(LookDetailsActivity.this, "Дату використання збережено", Toast.LENGTH_SHORT).show();
-                    })
-                    .addOnFailureListener(e -> {
-                        Log.e(TAG, "Error saving usage data for item " + itemId, e);
-                        Toast.makeText(LookDetailsActivity.this, "Помилка збереження дати", Toast.LENGTH_SHORT).show();
-                    });
+                db.collection("usage_history")
+                        .add(usageData)
+                        .addOnSuccessListener(documentReference -> {
+                            Log.d(TAG, "Usage data saved with ID: " + documentReference.getId());
+                            Toast.makeText(LookDetailsActivity.this, "Дату використання збережено", Toast.LENGTH_SHORT).show();
+                        })
+                        .addOnFailureListener(e -> {
+                            Log.e(TAG, "Error saving usage data for item " + itemId, e);
+                            Toast.makeText(LookDetailsActivity.this, "Помилка збереження дати", Toast.LENGTH_SHORT).show();
+                        });
+            } else {
+                Log.w(TAG, "Category not found for item " + itemId + ", skipping usage save.");
+                Toast.makeText(LookDetailsActivity.this, "Категорію одягу не знайдено", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }

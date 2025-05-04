@@ -28,7 +28,7 @@ import java.util.Map;
 
 public class Rating extends AppCompatActivity {
 
-    private EditText editTextItemId;
+    private EditText editTextItemCategory;
     private TextView textViewItemLooks;
     private TextView textViewLastWornDate;
     private TextView textViewMostUsedByDay;
@@ -42,7 +42,7 @@ public class Rating extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rating);
 
-        editTextItemId = findViewById(R.id.editTextItemId);
+        editTextItemCategory = findViewById(R.id.editTextItemId);
         textViewItemLooks = findViewById(R.id.textViewItemLooks);
         textViewLastWornDate = findViewById(R.id.textViewLastWornDate);
         textViewMostUsedByDay = findViewById(R.id.textViewMostUsedByDay);
@@ -58,29 +58,30 @@ public class Rating extends AppCompatActivity {
         });
 
         buttonShowItemStats.setOnClickListener(v -> {
-            String itemId = editTextItemId.getText().toString().trim();
-            if (!itemId.isEmpty()) {
-                showItemUsageStats(itemId);
+            String itemCategory = editTextItemCategory.getText().toString().trim();
+            if (!itemCategory.isEmpty()) {
+                showItemUsageStats(itemCategory);
             } else {
-                Toast.makeText(this, "Будь ласка, введіть ID одиниці одягу", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Будь ласка, введіть категорію одягу", Toast.LENGTH_SHORT).show();
             }
         });
 
-        loadMostUsedClothingByDay();
+        loadMostUsedClothingByCategoryByDay();
     }
 
-    private void showItemUsageStats(String itemId) {
-        List<String> looks = new ArrayList<>();
+    private void showItemUsageStats(String itemCategory) {
+        List<String> lookNames = new ArrayList<>();
         final long[] lastWornTimestamp = {0};
+        List<String> lookIdsUsed = new ArrayList<>();
 
         db.collection("usage_history")
-                .whereEqualTo("itemId", itemId)
+                .whereEqualTo("itemCategory", itemCategory)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         String lookId = document.getString("lookId");
-                        if (lookId != null && !looks.contains(lookId)) {
-                            looks.add(lookId);
+                        if (lookId != null && !lookIdsUsed.contains(lookId)) {
+                            lookIdsUsed.add(lookId);
                         }
                         Long wornDate = document.getLong("wornDate");
                         if (wornDate != null && wornDate > lastWornTimestamp[0]) {
@@ -88,33 +89,53 @@ public class Rating extends AppCompatActivity {
                         }
                     }
 
-                    textViewItemLooks.setText(looks.isEmpty() ? "-" : String.join(", ", looks));
-                    textViewLastWornDate.setText(lastWornTimestamp[0] == 0 ? "-" : dateFormatter.format(new Date(lastWornTimestamp[0])));
+                    if (!lookIdsUsed.isEmpty()) {
+                        db.collection("outfits")
+                                .whereIn("outfitId", lookIdsUsed)
+                                .get()
+                                .addOnSuccessListener(lookQuerySnapshots -> {
+                                    for (QueryDocumentSnapshot lookDocument : lookQuerySnapshots) {
+                                        String lookName = lookDocument.getString("name");
+                                        if (lookName != null) {
+                                            lookNames.add(lookName);
+                                        }
+                                    }
+                                    textViewItemLooks.setText(lookNames.isEmpty() ? "-" : String.join(", ", lookNames));
+                                    textViewLastWornDate.setText(lastWornTimestamp[0] == 0 ? "-" : dateFormatter.format(new Date(lastWornTimestamp[0])));
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.e(TAG, "Error loading look names", e);
+                                    textViewItemLooks.setText("Помилка завантаження назв луків");
+                                    textViewLastWornDate.setText(lastWornTimestamp[0] == 0 ? "-" : dateFormatter.format(new Date(lastWornTimestamp[0])));
+                                });
+                    } else {
+                        textViewItemLooks.setText("-");
+                        textViewLastWornDate.setText(lastWornTimestamp[0] == 0 ? "-" : dateFormatter.format(new Date(lastWornTimestamp[0])));
+                    }
 
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error loading usage stats for item " + itemId, e);
+                    Log.e(TAG, "Error loading usage stats for category " + itemCategory, e);
                     Toast.makeText(this, "Помилка завантаження статистики", Toast.LENGTH_SHORT).show();
                     textViewItemLooks.setText("-");
                     textViewLastWornDate.setText("-");
                 });
     }
 
-    private void loadMostUsedClothingByDay() {
+    private void loadMostUsedClothingByCategoryByDay() {
         Map<Long, Map<String, Integer>> dailyUsageCounts = new HashMap<>();
-        Map<Long, String> mostUsedItemByDay = new HashMap<>();
+        Map<Long, String> mostUsedCategoryByDay = new HashMap<>();
 
         db.collection("usage_history")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        String itemId = document.getString("itemId");
+                        String itemCategory = document.getString("itemCategory");
                         Long wornDateTimestamp = document.getLong("wornDate");
 
-                        if (itemId != null && wornDateTimestamp != null) {
+                        if (itemCategory != null && wornDateTimestamp != null) {
                             Calendar calendar = Calendar.getInstance();
                             calendar.setTimeInMillis(wornDateTimestamp);
-
                             calendar.set(Calendar.HOUR_OF_DAY, 0);
                             calendar.set(Calendar.MINUTE, 0);
                             calendar.set(Calendar.SECOND, 0);
@@ -125,31 +146,31 @@ public class Rating extends AppCompatActivity {
                                 dailyUsageCounts.put(dayTimestamp, new HashMap<>());
                             }
 
-                            Map<String, Integer> itemCounts = dailyUsageCounts.get(dayTimestamp);
-                            itemCounts.put(itemId, itemCounts.getOrDefault(itemId, 0) + 1);
+                            Map<String, Integer> categoryCounts = dailyUsageCounts.get(dayTimestamp);
+                            categoryCounts.put(itemCategory, categoryCounts.getOrDefault(itemCategory, 0) + 1);
                         }
                     }
 
                     for (Map.Entry<Long, Map<String, Integer>> dailyEntry : dailyUsageCounts.entrySet()) {
                         long day = dailyEntry.getKey();
-                        Map<String, Integer> itemCounts = dailyEntry.getValue();
-                        String mostUsed = null;
+                        Map<String, Integer> categoryCounts = dailyEntry.getValue();
+                        String mostUsedCategory = null;
                         int maxCount = 0;
 
-                        for (Map.Entry<String, Integer> itemCountEntry : itemCounts.entrySet()) {
-                            if (itemCountEntry.getValue() > maxCount) {
-                                mostUsed = itemCountEntry.getKey();
-                                maxCount = itemCountEntry.getValue();
+                        for (Map.Entry<String, Integer> categoryCountEntry : categoryCounts.entrySet()) {
+                            if (categoryCountEntry.getValue() > maxCount) {
+                                mostUsedCategory = categoryCountEntry.getKey();
+                                maxCount = categoryCountEntry.getValue();
                             }
                         }
-                        if (mostUsed != null) {
-                            mostUsedItemByDay.put(day, mostUsed);
+                        if (mostUsedCategory != null) {
+                            mostUsedCategoryByDay.put(day, mostUsedCategory);
                         }
                     }
 
                     StringBuilder sb = new StringBuilder();
                     SimpleDateFormat dayFormatter = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
-                    for (Map.Entry<Long, String> entry : mostUsedItemByDay.entrySet()) {
+                    for (Map.Entry<Long, String> entry : mostUsedCategoryByDay.entrySet()) {
                         sb.append(dayFormatter.format(new Date(entry.getKey())))
                                 .append(": ")
                                 .append(entry.getValue())
@@ -159,7 +180,7 @@ public class Rating extends AppCompatActivity {
 
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error loading most used clothing by day", e);
+                    Log.e(TAG, "Error loading most used clothing by category by day", e);
                     textViewMostUsedByDay.setText("-");
                 });
     }

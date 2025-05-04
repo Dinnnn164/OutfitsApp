@@ -5,6 +5,7 @@ public class ClothItem {
     private long lastWorn;
 
 
+
     public ClothItem() {
 
     }
