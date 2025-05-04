@@ -10,12 +10,17 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewOutlineProvider;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.provider.MediaStore;
@@ -30,8 +35,36 @@ public class Profile extends AppCompatActivity {
     private ImageButton editButton;
     private EditText editName;
     private EditText editNickname;
+    private Button changePhotoButton;
+    private Uri selectedImageUri;
 
     private boolean isEditing = false;
+
+    private final ActivityResultLauncher<Intent> pickImageLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        selectedImageUri = result.getData().getData();
+                        if (selectedImageUri != null) {
+                            try {
+                                Bitmap bitmap = loadImage(selectedImageUri);
+                                if (bitmap != null) {
+                                    imageProfile.setImageBitmap(bitmap);
+                                    // Тут можна додати код для збереження нового URI фото профілю
+                                } else {
+                                    Log.e("Profile", "Failed to load selected bitmap");
+                                    Toast.makeText(Profile.this, "Не вдалося завантажити обране фото", Toast.LENGTH_SHORT).show();
+                                }
+                            } catch (IOException e) {
+                                Log.e("Profile", "Error loading selected image", e);
+                                Toast.makeText(Profile.this, "Помилка при завантаженні обраного фото", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }
+                }
+            });
 
     @SuppressLint("WrongThread")
     @Override
@@ -46,6 +79,7 @@ public class Profile extends AppCompatActivity {
         editButton = findViewById(R.id.editButton);
         editName = findViewById(R.id.editName);
         editNickname = findViewById(R.id.editNickname);
+        changePhotoButton = findViewById(R.id.changePhotoButton);
 
 
         editName.setVisibility(View.GONE);
@@ -110,6 +144,7 @@ public class Profile extends AppCompatActivity {
                     editNickname.setVisibility(View.VISIBLE);
 
                     editButton.setImageResource(R.drawable.ic_save);
+                    changePhotoButton.setVisibility(View.VISIBLE);
                 } else {
 
                     String newName = editName.getText().toString();
@@ -124,26 +159,38 @@ public class Profile extends AppCompatActivity {
                     editNickname.setVisibility(View.GONE);
 
                     editButton.setImageResource(R.drawable.ic_edit);
+                    changePhotoButton.setVisibility(View.GONE);
 
 
                     Toast.makeText(Profile.this, "Профіль оновлено", Toast.LENGTH_SHORT).show();
                 }
             }
         });
+
+
+        changePhotoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openGallery();
+            }
+        });
     }
 
 
-    private Bitmap loadImage(Uri imageUri) {
-        try {
-            if (android.os.Build.VERSION.SDK_INT >= 29) {
-                ImageDecoder.Source source = ImageDecoder.createSource(this.getContentResolver(), imageUri);
-                return ImageDecoder.decodeBitmap(source);
-            } else {
-                return MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
-            }
-        } catch (IOException e) {
-            Log.e("Profile", "Error loading image from URI", e);
-            return null;
+    private void openGallery() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.setType("image/*");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        pickImageLauncher.launch(intent);
+    }
+
+
+    private Bitmap loadImage(Uri imageUri) throws IOException {
+        if (android.os.Build.VERSION.SDK_INT >= 29) {
+            ImageDecoder.Source source = ImageDecoder.createSource(this.getContentResolver(), imageUri);
+            return ImageDecoder.decodeBitmap(source);
+        } else {
+            return MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
         }
     }
 }
