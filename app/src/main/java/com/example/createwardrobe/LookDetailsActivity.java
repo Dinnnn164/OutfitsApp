@@ -5,21 +5,33 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.CalendarView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.createwardrobe.classes.ClothItem;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Map;
-
-
 
 public class LookDetailsActivity extends AppCompatActivity {
 
     private LinearLayout imagesContainer;
+    private CalendarView calendarView;
+    private Button saveDateButton;
     private FirebaseFirestore db;
+    private String lookId;
     private static final String TAG = "LookDetailsActivity";
+    private long selectedDateInMillis;
+    private Map<String, ClothItem> lookClothItems = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,17 +39,34 @@ public class LookDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_look_details);
 
         imagesContainer = findViewById(R.id.images_container);
+        calendarView = findViewById(R.id.calendarView);
+        saveDateButton = findViewById(R.id.saveDateButton);
 
         FirebaseApp.initializeApp(this);
         db = FirebaseFirestore.getInstance();
 
-        String lookId = getIntent().getStringExtra("outfitId");
+        lookId = getIntent().getStringExtra("outfitId");
 
         if (lookId != null) {
             loadLookDetails(lookId);
         } else {
             Log.e(TAG, "No outfitId passed to LookDetailsActivity");
         }
+
+        calendarView.setOnDateChangeListener((view, year, month, dayOfMonth) -> {
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(year, month, dayOfMonth, 0, 0, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+            selectedDateInMillis = calendar.getTimeInMillis();
+        });
+
+        saveDateButton.setOnClickListener(v -> {
+            if (selectedDateInMillis > 0 && !lookClothItems.isEmpty()) {
+                saveUsageDate(selectedDateInMillis);
+            } else {
+                Toast.makeText(LookDetailsActivity.this, "Будь ласка, оберіть дату", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void loadLookDetails(String lookId) {
@@ -46,16 +75,16 @@ public class LookDetailsActivity extends AppCompatActivity {
                     if (documentSnapshot.exists()) {
                         Map<String, Object> outfitData = documentSnapshot.getData();
                         if (outfitData != null && outfitData.containsKey("items")) {
-                            Map<String, Object> items = (Map<String, Object>) outfitData.get("items");
+                            Map<String, Object> itemsMap = (Map<String, Object>) outfitData.get("items");
 
-                            for (Object itemObject : items.values()) {
-                                if (itemObject instanceof Map) {
-                                    Map<String, Object> itemData = (Map<String, Object>) itemObject;
+                            for (Map.Entry<String, Object> entry : itemsMap.entrySet()) {
+                                if (entry.getValue() instanceof Map) {
+                                    Map<String, Object> itemData = (Map<String, Object>) entry.getValue();
+                                    ClothItem clothItem = new ClothItem();
+                                    clothItem.setImageBase64((String) itemData.get("imageBase64"));
 
-                                    String base64Image = (String) itemData.get("imageBase64");
-                                    if (base64Image != null && !base64Image.isEmpty()) {
-                                        addImageFromBase64(base64Image);
-                                    }
+                                    lookClothItems.put(entry.getKey(), clothItem);
+                                    addImageFromBase64(clothItem.getImageBase64());
                                 }
                             }
                         }
@@ -81,6 +110,28 @@ public class LookDetailsActivity extends AppCompatActivity {
             imagesContainer.addView(imageView);
         } catch (Exception e) {
             Log.e(TAG, "Error decoding image", e);
+        }
+    }
+
+    private void saveUsageDate(long dateInMillis) {
+        for (Map.Entry<String, ClothItem> entry : lookClothItems.entrySet()) {
+            String itemId = entry.getKey();
+            Map<String, Object> usageData = new HashMap<>();
+            usageData.put("lookId", lookId);
+            usageData.put("itemId", itemId);
+            usageData.put("wornDate", dateInMillis);
+
+
+            db.collection("usage_history")
+                    .add(usageData)
+                    .addOnSuccessListener(documentReference -> {
+                        Log.d(TAG, "Usage data saved with ID: " + documentReference.getId());
+                        Toast.makeText(LookDetailsActivity.this, "Дату використання збережено", Toast.LENGTH_SHORT).show();
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e(TAG, "Error saving usage data for item " + itemId, e);
+                        Toast.makeText(LookDetailsActivity.this, "Помилка збереження дати", Toast.LENGTH_SHORT).show();
+                    });
         }
     }
 }
