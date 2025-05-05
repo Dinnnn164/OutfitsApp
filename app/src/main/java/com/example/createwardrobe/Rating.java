@@ -1,6 +1,8 @@
 package com.example.createwardrobe;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -18,8 +20,6 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.MaterialDatePicker;
-import com.google.android.material.datepicker.DateValidatorPointBackward;
-import com.google.android.material.datepicker.DateValidatorPointForward;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -48,6 +48,8 @@ public class Rating extends AppCompatActivity {
     private SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
     private Date startDateFilter = null;
     private Date endDateFilter = null;
+    private List<String> allCategories = new ArrayList<>();
+    private ArrayAdapter<String> adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +66,7 @@ public class Rating extends AppCompatActivity {
         FirebaseApp.initializeApp(this);
         db = FirebaseFirestore.getInstance();
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+        adapter = new ArrayAdapter<>(
                 this,
                 android.R.layout.simple_dropdown_item_1line,
                 new ArrayList<>()
@@ -78,7 +80,6 @@ public class Rating extends AppCompatActivity {
             return insets;
         });
 
-
         categoryCalendarIcon.setOnClickListener(v -> showDateRangePickerDialog());
 
         buttonShowItemStats.setOnClickListener(v -> {
@@ -90,28 +91,58 @@ public class Rating extends AppCompatActivity {
             }
         });
 
+        editTextItemCategory.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                filterCategories(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
         loadMostUsedClothingByCategoryByDay();
         loadItemCategoriesForSuggestions();
+    }
+
+    private void filterCategories(String query) {
+        List<String> filteredCategories = new ArrayList<>();
+        if (query.length() >= editTextItemCategory.getThreshold()) {
+            for (String category : allCategories) {
+                if (category.toLowerCase(Locale.getDefault()).startsWith(query.toLowerCase(Locale.getDefault()))) {
+                    filteredCategories.add(category);
+                }
+            }
+        } else {
+            filteredCategories.addAll(allCategories);
+        }
+        adapter.clear();
+        adapter.addAll(filteredCategories);
+        adapter.notifyDataSetChanged();
     }
 
     private void loadItemCategoriesForSuggestions() {
         db.collection("usage_history")
                 .get()
                 .addOnSuccessListener(querySnapshots -> {
-                    Set<String> categories = new HashSet<>();
+                    Set<String> uniqueCategories = new HashSet<>();
                     for (QueryDocumentSnapshot doc : querySnapshots) {
                         String category = doc.getString("itemCategory");
                         if (category != null && !category.trim().isEmpty()) {
-                            categories.add(category.trim());
+                            uniqueCategories.add(category.trim());
                         }
                     }
-                    ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                            this,
-                            android.R.layout.simple_dropdown_item_1line,
-                            new ArrayList<>(categories)
-                    );
-                    editTextItemCategory.setAdapter(adapter);
-                    editTextItemCategory.setThreshold(1);
+                    allCategories.addAll(uniqueCategories);
+                    adapter.clear();
+                    adapter.addAll(allCategories);
+                    adapter.notifyDataSetChanged();
                 })
                 .addOnFailureListener(e -> Log.e(TAG, "Помилка при завантаженні категорій", e));
     }
@@ -133,7 +164,7 @@ public class Rating extends AppCompatActivity {
                 startDateFilter = new Date(startDateLong);
                 endDateFilter = new Date(endDateLong);
                 Toast.makeText(this, "Період: " + dateFormatter.format(startDateFilter) + " - " + dateFormatter.format(endDateFilter), Toast.LENGTH_LONG).show();
-               ;
+
             }
         });
 
@@ -155,7 +186,6 @@ public class Rating extends AppCompatActivity {
             query = query.whereGreaterThanOrEqualTo("wornDate", startDate.getTime());
         }
         if (endDate != null) {
-
             Calendar endCalendar = Calendar.getInstance();
             endCalendar.setTime(endDate);
             endCalendar.add(Calendar.DAY_OF_MONTH, 1);
