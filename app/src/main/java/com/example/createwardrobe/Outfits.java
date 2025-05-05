@@ -225,6 +225,8 @@ public class Outfits extends AppCompatActivity {
         db.collection("outfits")
                 .add(outfit)
                 .addOnSuccessListener(documentReference -> {
+                    String lookId = documentReference.getId();
+                    recordUsageHistory(lookId, outfitName, selectedItems);
                     Toast.makeText(this, "Аутфіт збережено", Toast.LENGTH_SHORT).show();
                     finish();
                 })
@@ -232,6 +234,33 @@ public class Outfits extends AppCompatActivity {
                     Log.e("Outfits", "Error saving outfit", e);
                     Toast.makeText(this, "Помилка збереження", Toast.LENGTH_SHORT).show();
                 });
+    }
+
+    private void recordUsageHistory(String lookId, String name, Map<String, Map<String, Object>> selectedItems) {
+        long wornDate = System.currentTimeMillis();
+        for (Map.Entry<String, Map<String, Object>> itemEntry : selectedItems.entrySet()) {
+            Map<String, Object> itemDetails = itemEntry.getValue();
+            String itemCategory = itemEntry.getKey();
+            String itemId = (String) itemDetails.get("id");
+
+            if (itemId != null) {
+                Map<String, Object> usageRecord = new HashMap<>();
+                usageRecord.put("lookId", lookId);
+                usageRecord.put("lookName", name);
+                usageRecord.put("itemId", itemId);
+                usageRecord.put("itemCategory", itemCategory);
+                usageRecord.put("wornDate", wornDate);
+
+                db.collection("usage_history")
+                        .add(usageRecord)
+                        .addOnSuccessListener(documentReference -> {
+                            Log.d("Outfits", "Запис використання створено для item " + itemId + " у луці " + lookId);
+                        })
+                        .addOnFailureListener(e -> {
+                            Log.e("Outfits", "Помилка створення запису використання для item " + itemId + " у луці " + lookId, e);
+                        });
+            }
+        }
     }
 
     private void addCarouselForType(String type) {

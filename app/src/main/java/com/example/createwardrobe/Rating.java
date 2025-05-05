@@ -72,46 +72,30 @@ public class Rating extends AppCompatActivity {
     private void showItemUsageStats(String itemCategory) {
         List<String> lookNames = new ArrayList<>();
         final long[] lastWornTimestamp = {0};
-        List<String> lookIdsUsed = new ArrayList<>();
+
+        Log.d(TAG, "Searching usage history for category: " + itemCategory);
 
         db.collection("usage_history")
                 .whereEqualTo("itemCategory", itemCategory)
                 .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        String lookId = document.getString("lookId");
-                        if (lookId != null && !lookIdsUsed.contains(lookId)) {
-                            lookIdsUsed.add(lookId);
+                .addOnSuccessListener(usageQuerySnapshots -> {
+                    Log.d(TAG, "Successfully retrieved usage history. Number of documents: " + usageQuerySnapshots.size());
+
+                    for (QueryDocumentSnapshot usageDocument : usageQuerySnapshots) {
+                        String lookName = usageDocument.getString("lookName");
+                        Long wornDate = usageDocument.getLong("wornDate");
+
+                        if (lookName != null && !lookNames.contains(lookName)) {
+                            lookNames.add(lookName);
                         }
-                        Long wornDate = document.getLong("wornDate");
                         if (wornDate != null && wornDate > lastWornTimestamp[0]) {
                             lastWornTimestamp[0] = wornDate;
                         }
                     }
 
-                    if (!lookIdsUsed.isEmpty()) {
-                        db.collection("outfits")
-                                .whereIn("outfitId", lookIdsUsed)
-                                .get()
-                                .addOnSuccessListener(lookQuerySnapshots -> {
-                                    for (QueryDocumentSnapshot lookDocument : lookQuerySnapshots) {
-                                        String lookName = lookDocument.getString("name");
-                                        if (lookName != null) {
-                                            lookNames.add(lookName);
-                                        }
-                                    }
-                                    textViewItemLooks.setText(lookNames.isEmpty() ? "-" : String.join(", ", lookNames));
-                                    textViewLastWornDate.setText(lastWornTimestamp[0] == 0 ? "-" : dateFormatter.format(new Date(lastWornTimestamp[0])));
-                                })
-                                .addOnFailureListener(e -> {
-                                    Log.e(TAG, "Error loading look names", e);
-                                    textViewItemLooks.setText("Помилка завантаження назв луків");
-                                    textViewLastWornDate.setText(lastWornTimestamp[0] == 0 ? "-" : dateFormatter.format(new Date(lastWornTimestamp[0])));
-                                });
-                    } else {
-                        textViewItemLooks.setText("-");
-                        textViewLastWornDate.setText(lastWornTimestamp[0] == 0 ? "-" : dateFormatter.format(new Date(lastWornTimestamp[0])));
-                    }
+                    Log.d(TAG, "Look names found for category " + itemCategory + ": " + lookNames.toString());
+                    textViewItemLooks.setText(lookNames.isEmpty() ? "-" : String.join(", ", lookNames));
+                    textViewLastWornDate.setText(lastWornTimestamp[0] == 0 ? "-" : dateFormatter.format(new Date(lastWornTimestamp[0])));
 
                 })
                 .addOnFailureListener(e -> {

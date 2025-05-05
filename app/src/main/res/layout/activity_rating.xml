@@ -4,99 +4,106 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/pink_light"
+    tools:context=".Rating">
 
     <ScrollView
         android:id="@+id/scrollView2"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/bottom_app_bar"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="24dp"
+            android:background="@drawable/rounded_pink_box">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
                 android:text="Статистика одягу"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="@color/pink_dark"
+                android:layout_marginBottom="20dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="Введіть ID одиниці одягу:"
-                android:textSize="16sp" />
+                android:text="Введіть назву одягу:"
+                android:textSize="16sp"
+                android:textColor="@color/pink_dark" />
 
             <EditText
                 android:id="@+id/editTextItemId"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:hint="Наприклад: футболка"
+                android:minHeight="48dp"
+                android:background="@drawable/rounded_edittext"
+                android:padding="12dp"
                 android:layout_marginBottom="16dp"
-                android:hint="Наприклад: -M123abc..."
-                android:minHeight="48dp" />
-
-            <Button
-                android:id="@+id/buttonShowItemStats"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:text="Показати статистику одиниці одягу" />
+                android:textColor="@color/black" /> <Button
+            android:id="@+id/buttonShowItemStats"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Показати статистику одягу"
+            android:backgroundTint="@color/pink_accent"
+            android:textColor="@android:color/white"
+            android:layout_marginBottom="24dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
                 android:text="Використання в луках:"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:textColor="@color/pink_dark" />
 
             <TextView
                 android:id="@+id/textViewItemLooks"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="-" />
+                android:text="-"
+                android:layout_marginBottom="16dp"
+                android:textColor="@color/black" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
                 android:text="Останній раз одягався:"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:textColor="@color/pink_dark" />
 
             <TextView
                 android:id="@+id/textViewLastWornDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                android:text="-" />
+                android:text="-"
+                android:layout_marginBottom="16dp"
+                android:textColor="@color/black" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
                 android:text="Найчастіше використовуваний одяг по днях:"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:textColor="@color/pink_dark" />
 
             <TextView
                 android:id="@+id/textViewMostUsedByDay"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="-" />
+                android:text="-"
+                android:layout_marginBottom="24dp"
+                android:textColor="@color/black" />
 
         </LinearLayout>
-
     </ScrollView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

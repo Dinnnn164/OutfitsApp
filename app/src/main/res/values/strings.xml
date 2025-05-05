@@ -1,4 +1,7 @@
-<resources>
+<resources xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <string name="OutfitApp">OutfitApp</string>
+
     <string-array name="garment_types">
         <item>Верх</item>
         <item>Низ</item>
@@ -9,18 +12,18 @@
     </string-array>
 
     <string-array name="material_types">
-        <item>Баво́вна</item>
-        <item>Поліе́стер</item>
-        <item>Во́вна</item>
+        <item>Бавовна</item>
+        <item>Поліестер</item>
+        <item>Вовна</item>
         <item>Шовк</item>
         <item>Льон</item>
         <item>Джинсова тканина</item>
         <item>Шкіра</item>
         <item>Замша</item>
-        <item>Нейло́н</item>
-        <item>Спанде́кс</item>
-        <item>Оксами́т</item>
-        <item>Кашмі́р</item>
+        <item>Нейлон</item>
+        <item>Спандекс</item>
+        <item>Оксамит</item>
+        <item>Кашмір</item>
         <item>Метал</item>
         <item>Золото</item>
         <item>Срібло</item>
