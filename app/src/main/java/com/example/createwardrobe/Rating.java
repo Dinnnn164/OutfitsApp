@@ -2,27 +2,43 @@ package com.example.createwardrobe;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
+import androidx.core.util.Pair;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.material.datepicker.CalendarConstraints;
+import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.datepicker.DateValidatorPointBackward;
+import com.google.android.material.datepicker.DateValidatorPointForward;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 public class Rating extends AppCompatActivity {
 
     private AutoCompleteTextView editTextItemCategory;
+    private ImageView categoryCalendarIcon;
     private TextView textViewItemLooks;
     private TextView textViewLastWornDate;
     private TextView textViewMostUsedByDay;
@@ -30,6 +46,8 @@ public class Rating extends AppCompatActivity {
     private FirebaseFirestore db;
     private static final String TAG = "RatingActivity";
     private SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
+    private Date startDateFilter = null;
+    private Date endDateFilter = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +55,7 @@ public class Rating extends AppCompatActivity {
         setContentView(R.layout.activity_rating);
 
         editTextItemCategory = findViewById(R.id.editTextItemId);
+        categoryCalendarIcon = findViewById(R.id.categoryCalendarIcon);
         textViewItemLooks = findViewById(R.id.textViewItemLooks);
         textViewLastWornDate = findViewById(R.id.textViewLastWornDate);
         textViewMostUsedByDay = findViewById(R.id.textViewMostUsedByDay);
@@ -45,16 +64,27 @@ public class Rating extends AppCompatActivity {
         FirebaseApp.initializeApp(this);
         db = FirebaseFirestore.getInstance();
 
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_dropdown_item_1line,
+                new ArrayList<>()
+        );
+        editTextItemCategory.setAdapter(adapter);
+        editTextItemCategory.setThreshold(1);
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
+
+        categoryCalendarIcon.setOnClickListener(v -> showDateRangePickerDialog());
+
         buttonShowItemStats.setOnClickListener(v -> {
             String itemCategory = editTextItemCategory.getText().toString().trim();
             if (!itemCategory.isEmpty()) {
-                showItemUsageStats(itemCategory);
+                showItemUsageStats(itemCategory, startDateFilter, endDateFilter);
             } else {
                 Toast.makeText(this, "Будь ласка, введіть категорію одягу", Toast.LENGTH_SHORT).show();
             }
@@ -64,13 +94,75 @@ public class Rating extends AppCompatActivity {
         loadItemCategoriesForSuggestions();
     }
 
-    private void showItemUsageStats(String itemCategory) {
+    private void loadItemCategoriesForSuggestions() {
+        db.collection("usage_history")
+                .get()
+                .addOnSuccessListener(querySnapshots -> {
+                    Set<String> categories = new HashSet<>();
+                    for (QueryDocumentSnapshot doc : querySnapshots) {
+                        String category = doc.getString("itemCategory");
+                        if (category != null && !category.trim().isEmpty()) {
+                            categories.add(category.trim());
+                        }
+                    }
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                            this,
+                            android.R.layout.simple_dropdown_item_1line,
+                            new ArrayList<>(categories)
+                    );
+                    editTextItemCategory.setAdapter(adapter);
+                    editTextItemCategory.setThreshold(1);
+                })
+                .addOnFailureListener(e -> Log.e(TAG, "Помилка при завантаженні категорій", e));
+    }
+
+    private void showDateRangePickerDialog() {
+        CalendarConstraints.Builder constraintsBuilder = new CalendarConstraints.Builder();
+
+        MaterialDatePicker.Builder<Pair<Long, Long>> builder = MaterialDatePicker.Builder.dateRangePicker();
+        builder.setTitleText("Виберіть період");
+        builder.setCalendarConstraints(constraintsBuilder.build());
+
+        final MaterialDatePicker<Pair<Long, Long>> picker = builder.build();
+
+        picker.addOnPositiveButtonClickListener(selection -> {
+            Long startDateLong = selection.first;
+            Long endDateLong = selection.second;
+
+            if (startDateLong != null && endDateLong != null) {
+                startDateFilter = new Date(startDateLong);
+                endDateFilter = new Date(endDateLong);
+                Toast.makeText(this, "Період: " + dateFormatter.format(startDateFilter) + " - " + dateFormatter.format(endDateFilter), Toast.LENGTH_LONG).show();
+               ;
+            }
+        });
+
+        picker.addOnNegativeButtonClickListener(dialog -> {
+
+        });
+
+        picker.show(getSupportFragmentManager(), picker.toString());
+    }
+
+    private void showItemUsageStats(String itemCategory, Date startDate, Date endDate) {
         List<String> lookNames = new ArrayList<>();
         final long[] lastWornTimestamp = {0};
 
-        db.collection("usage_history")
-                .whereEqualTo("itemCategory", itemCategory)
-                .get()
+        com.google.firebase.firestore.Query query = db.collection("usage_history")
+                .whereEqualTo("itemCategory", itemCategory);
+
+        if (startDate != null) {
+            query = query.whereGreaterThanOrEqualTo("wornDate", startDate.getTime());
+        }
+        if (endDate != null) {
+
+            Calendar endCalendar = Calendar.getInstance();
+            endCalendar.setTime(endDate);
+            endCalendar.add(Calendar.DAY_OF_MONTH, 1);
+            query = query.whereLessThan("wornDate", endCalendar.getTimeInMillis());
+        }
+
+        query.get()
                 .addOnSuccessListener(usageQuerySnapshots -> {
                     for (QueryDocumentSnapshot usageDocument : usageQuerySnapshots) {
                         String lookName = usageDocument.getString("lookName");
@@ -93,6 +185,26 @@ public class Rating extends AppCompatActivity {
                     textViewItemLooks.setText("-");
                     textViewLastWornDate.setText("-");
                 });
+    }
+
+    private Calendar getStartOfDay(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar;
+    }
+
+    private Calendar getEndOfDay(Date date) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        calendar.set(Calendar.MILLISECOND, 999);
+        return calendar;
     }
 
     private void loadMostUsedClothingByCategoryByDay() {
@@ -153,27 +265,5 @@ public class Rating extends AppCompatActivity {
                     Log.e(TAG, "Error loading most used clothing by category by day", e);
                     textViewMostUsedByDay.setText("-");
                 });
-    }
-
-    private void loadItemCategoriesForSuggestions() {
-        db.collection("usage_history")
-                .get()
-                .addOnSuccessListener(querySnapshots -> {
-                    Set<String> categories = new HashSet<>();
-                    for (QueryDocumentSnapshot doc : querySnapshots) {
-                        String category = doc.getString("itemCategory");
-                        if (category != null && !category.trim().isEmpty()) {
-                            categories.add(category.trim());
-                        }
-                    }
-                    ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                            this,
-                            android.R.layout.simple_dropdown_item_1line,
-                            new ArrayList<>(categories)
-                    );
-                    editTextItemCategory.setAdapter(adapter);
-                    editTextItemCategory.setThreshold(1);
-                })
-                .addOnFailureListener(e -> Log.e(TAG, "Помилка при завантаженні категорій", e));
     }
 }

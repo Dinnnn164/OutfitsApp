@@ -40,27 +40,39 @@
                 android:textSize="16sp"
                 android:textColor="@color/pink_dark" />
 
-            <AutoCompleteTextView
-                android:id="@+id/editTextItemId"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Наприклад: футболка"
-                android:minHeight="48dp"
-                android:background="@drawable/rounded_edittext"
-                android:padding="12dp"
-                android:layout_marginBottom="16dp"
-                android:textColor="@color/black"
-                android:completionThreshold="1" />
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp">
 
+                <AutoCompleteTextView
+                    android:id="@+id/editTextItemId"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Наприклад: футболка"
+                    android:minHeight="48dp"
+                    android:background="@drawable/rounded_edittext"
+                    android:paddingStart="12dp"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="12dp"
+                    android:textColor="@color/black"
+                    android:completionThreshold="1"
+                    android:layout_marginEnd="8dp" />
 
-            <Button
-            android:id="@+id/buttonShowItemStats"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Показати статистику одягу"
-            android:backgroundTint="@color/pink_accent"
-            android:textColor="@android:color/white"
-            android:layout_marginBottom="24dp" />
+                <ImageView
+                    android:id="@+id/categoryCalendarIcon"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="@android:color/transparent"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="4dp"
+                    android:src="@drawable/baseline_calendar_month_24"
+                    android:layout_marginTop="4dp" tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+            </LinearLayout>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -107,6 +119,15 @@
                 android:layout_marginBottom="24dp"
                 android:textColor="@color/black" />
 
+            <Button
+                android:id="@+id/buttonShowItemStats"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Показати статистику одягу"
+                android:backgroundTint="@color/pink_accent"
+                android:textColor="@android:color/white"
+                android:layout_marginBottom="24dp" />
+
         </LinearLayout>
     </ScrollView>
 
@@ -128,6 +149,7 @@
         tools:ignore="SpeakableTextPresentCheck" />
 
     <com.google.android.material.bottomappbar.BottomAppBar
+
         android:id="@+id/bottom_app_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -150,5 +172,4 @@
             app:labelVisibilityMode="labeled"
             app:menu="@menu/bottom_menu" />
     </com.google.android.material.bottomappbar.BottomAppBar>
-
 </androidx.constraintlayout.widget.ConstraintLayout>
