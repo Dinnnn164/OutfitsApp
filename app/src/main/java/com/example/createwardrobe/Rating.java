@@ -2,9 +2,9 @@ package com.example.createwardrobe;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,17 +18,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 public class Rating extends AppCompatActivity {
 
-    private EditText editTextItemCategory;
+    private AutoCompleteTextView editTextItemCategory;
     private TextView textViewItemLooks;
     private TextView textViewLastWornDate;
     private TextView textViewMostUsedByDay;
@@ -67,20 +61,17 @@ public class Rating extends AppCompatActivity {
         });
 
         loadMostUsedClothingByCategoryByDay();
+        loadItemCategoriesForSuggestions();
     }
 
     private void showItemUsageStats(String itemCategory) {
         List<String> lookNames = new ArrayList<>();
         final long[] lastWornTimestamp = {0};
 
-        Log.d(TAG, "Searching usage history for category: " + itemCategory);
-
         db.collection("usage_history")
                 .whereEqualTo("itemCategory", itemCategory)
                 .get()
                 .addOnSuccessListener(usageQuerySnapshots -> {
-                    Log.d(TAG, "Successfully retrieved usage history. Number of documents: " + usageQuerySnapshots.size());
-
                     for (QueryDocumentSnapshot usageDocument : usageQuerySnapshots) {
                         String lookName = usageDocument.getString("lookName");
                         Long wornDate = usageDocument.getLong("wornDate");
@@ -93,13 +84,11 @@ public class Rating extends AppCompatActivity {
                         }
                     }
 
-                    Log.d(TAG, "Look names found for category " + itemCategory + ": " + lookNames.toString());
                     textViewItemLooks.setText(lookNames.isEmpty() ? "-" : String.join(", ", lookNames));
                     textViewLastWornDate.setText(lastWornTimestamp[0] == 0 ? "-" : dateFormatter.format(new Date(lastWornTimestamp[0])));
-
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error loading usage stats for category " + itemCategory, e);
+                    Log.e(TAG, "Error loading usage stats", e);
                     Toast.makeText(this, "Помилка завантаження статистики", Toast.LENGTH_SHORT).show();
                     textViewItemLooks.setText("-");
                     textViewLastWornDate.setText("-");
@@ -126,10 +115,7 @@ public class Rating extends AppCompatActivity {
                             calendar.set(Calendar.MILLISECOND, 0);
                             long dayTimestamp = calendar.getTimeInMillis();
 
-                            if (!dailyUsageCounts.containsKey(dayTimestamp)) {
-                                dailyUsageCounts.put(dayTimestamp, new HashMap<>());
-                            }
-
+                            dailyUsageCounts.putIfAbsent(dayTimestamp, new HashMap<>());
                             Map<String, Integer> categoryCounts = dailyUsageCounts.get(dayTimestamp);
                             categoryCounts.put(itemCategory, categoryCounts.getOrDefault(itemCategory, 0) + 1);
                         }
@@ -167,5 +153,27 @@ public class Rating extends AppCompatActivity {
                     Log.e(TAG, "Error loading most used clothing by category by day", e);
                     textViewMostUsedByDay.setText("-");
                 });
+    }
+
+    private void loadItemCategoriesForSuggestions() {
+        db.collection("usage_history")
+                .get()
+                .addOnSuccessListener(querySnapshots -> {
+                    Set<String> categories = new HashSet<>();
+                    for (QueryDocumentSnapshot doc : querySnapshots) {
+                        String category = doc.getString("itemCategory");
+                        if (category != null && !category.trim().isEmpty()) {
+                            categories.add(category.trim());
+                        }
+                    }
+                    ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                            this,
+                            android.R.layout.simple_dropdown_item_1line,
+                            new ArrayList<>(categories)
+                    );
+                    editTextItemCategory.setAdapter(adapter);
+                    editTextItemCategory.setThreshold(1);
+                })
+                .addOnFailureListener(e -> Log.e(TAG, "Помилка при завантаженні категорій", e));
     }
 }

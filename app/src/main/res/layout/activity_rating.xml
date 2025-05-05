@@ -40,7 +40,7 @@
                 android:textSize="16sp"
                 android:textColor="@color/pink_dark" />
 
-            <EditText
+            <AutoCompleteTextView
                 android:id="@+id/editTextItemId"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -49,7 +49,11 @@
                 android:background="@drawable/rounded_edittext"
                 android:padding="12dp"
                 android:layout_marginBottom="16dp"
-                android:textColor="@color/black" /> <Button
+                android:textColor="@color/black"
+                android:completionThreshold="1" />
+
+
+            <Button
             android:id="@+id/buttonShowItemStats"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
