@@ -119,6 +119,9 @@
                 android:layout_marginBottom="24dp"
                 android:textColor="@color/black" />
 
+
+
+
             <Button
                 android:id="@+id/buttonShowItemStats"
                 android:layout_width="wrap_content"
@@ -127,6 +130,13 @@
                 android:backgroundTint="@color/pink_accent"
                 android:textColor="@android:color/white"
                 android:layout_marginBottom="24dp" />
+
+
+            <LinearLayout
+                android:id="@+id/chartContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
 
         </LinearLayout>
     </ScrollView>

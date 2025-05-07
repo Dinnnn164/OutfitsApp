@@ -1,5 +1,6 @@
 package com.example.createwardrobe;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -9,6 +10,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,6 +20,12 @@ import androidx.core.util.Pair;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.firebase.FirebaseApp;
@@ -50,6 +58,7 @@ public class Rating extends AppCompatActivity {
     private Date endDateFilter = null;
     private List<String> allCategories = new ArrayList<>();
     private ArrayAdapter<String> adapter;
+    private LinearLayout chartContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +71,7 @@ public class Rating extends AppCompatActivity {
         textViewLastWornDate = findViewById(R.id.textViewLastWornDate);
         textViewMostUsedByDay = findViewById(R.id.textViewMostUsedByDay);
         buttonShowItemStats = findViewById(R.id.buttonShowItemStats);
+        chartContainer = findViewById(R.id.chartContainer);
 
         FirebaseApp.initializeApp(this);
         db = FirebaseFirestore.getInstance();
@@ -84,17 +94,13 @@ public class Rating extends AppCompatActivity {
 
         buttonShowItemStats.setOnClickListener(v -> {
             String itemCategory = editTextItemCategory.getText().toString().trim();
-            if (!itemCategory.isEmpty()) {
-                showItemUsageStats(itemCategory, startDateFilter, endDateFilter);
-            } else {
-                Toast.makeText(this, "Будь ласка, введіть категорію одягу", Toast.LENGTH_SHORT).show();
-            }
+            showItemUsageStats(itemCategory, startDateFilter, endDateFilter);
         });
 
         editTextItemCategory.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                
+
             }
 
             @Override
@@ -164,7 +170,6 @@ public class Rating extends AppCompatActivity {
                 startDateFilter = new Date(startDateLong);
                 endDateFilter = new Date(endDateLong);
                 Toast.makeText(this, "Період: " + dateFormatter.format(startDateFilter) + " - " + dateFormatter.format(endDateFilter), Toast.LENGTH_LONG).show();
-
             }
         });
 
@@ -175,12 +180,14 @@ public class Rating extends AppCompatActivity {
         picker.show(getSupportFragmentManager(), picker.toString());
     }
 
-    private void showItemUsageStats(String itemCategory, Date startDate, Date endDate) {
-        List<String> lookNames = new ArrayList<>();
-        final long[] lastWornTimestamp = {0};
+    private void showItemUsageStats(String itemCategoryFilter, Date startDate, Date endDate) {
+        Map<String, Integer> usageCounts = new HashMap<>();
 
-        com.google.firebase.firestore.Query query = db.collection("usage_history")
-                .whereEqualTo("itemCategory", itemCategory);
+        com.google.firebase.firestore.Query query = db.collection("usage_history");
+
+        if (!itemCategoryFilter.isEmpty()) {
+            query = query.whereEqualTo("itemCategory", itemCategoryFilter);
+        }
 
         if (startDate != null) {
             query = query.whereGreaterThanOrEqualTo("wornDate", startDate.getTime());
@@ -195,26 +202,66 @@ public class Rating extends AppCompatActivity {
         query.get()
                 .addOnSuccessListener(usageQuerySnapshots -> {
                     for (QueryDocumentSnapshot usageDocument : usageQuerySnapshots) {
-                        String lookName = usageDocument.getString("lookName");
-                        Long wornDate = usageDocument.getLong("wornDate");
-
-                        if (lookName != null && !lookNames.contains(lookName)) {
-                            lookNames.add(lookName);
-                        }
-                        if (wornDate != null && wornDate > lastWornTimestamp[0]) {
-                            lastWornTimestamp[0] = wornDate;
+                        String itemCategory = usageDocument.getString("itemCategory");
+                        if (itemCategory != null) {
+                            usageCounts.put(itemCategory, usageCounts.getOrDefault(itemCategory, 0) + 1);
                         }
                     }
-
-                    textViewItemLooks.setText(lookNames.isEmpty() ? "-" : String.join(", ", lookNames));
-                    textViewLastWornDate.setText(lastWornTimestamp[0] == 0 ? "-" : dateFormatter.format(new Date(lastWornTimestamp[0])));
+                    displayUsageStatistics(usageCounts);
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error loading usage stats", e);
+                    Log.e(TAG, "Помилка завантаження статистики використання", e);
                     Toast.makeText(this, "Помилка завантаження статистики", Toast.LENGTH_SHORT).show();
-                    textViewItemLooks.setText("-");
-                    textViewLastWornDate.setText("-");
+
                 });
+    }
+
+    private void displayUsageStatistics(Map<String, Integer> usageCounts) {
+        chartContainer.removeAllViews();
+
+        if (usageCounts.isEmpty()) {
+            TextView noDataText = new TextView(this);
+            noDataText.setText("Немає даних за вибраний період та/або категорію.");
+            chartContainer.addView(noDataText);
+            return;
+        }
+
+
+        BarChart barChart = new BarChart(this);
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                500
+        );
+        barChart.setLayoutParams(layoutParams);
+
+        List<BarEntry> entries = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
+        int i = 0;
+        for (Map.Entry<String, Integer> entry : usageCounts.entrySet()) {
+            entries.add(new BarEntry(i, entry.getValue()));
+            labels.add(entry.getKey());
+            i++;
+        }
+
+        BarDataSet dataSet = new BarDataSet(entries, "Кількість використань");
+        dataSet.setColor(Color.parseColor("#FF69B4"));
+
+        BarData barData = new BarData(dataSet);
+        barChart.setData(barData);
+
+
+        XAxis xAxis = barChart.getXAxis();
+        xAxis.setValueFormatter(new IndexAxisValueFormatter(labels));
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setGranularity(1f);
+        xAxis.setLabelRotationAngle(-45);
+
+
+        barChart.getDescription().setEnabled(false);
+        barChart.getAxisRight().setEnabled(false);
+        barChart.getLegend().setEnabled(false);
+
+        chartContainer.addView(barChart);
     }
 
     private Calendar getStartOfDay(Date date) {
@@ -292,7 +339,7 @@ public class Rating extends AppCompatActivity {
 
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error loading most used clothing by category by day", e);
+                    Log.e(TAG, "Помилка завантаження найбільш використовуваного одягу за категорією по днях", e);
                     textViewMostUsedByDay.setText("-");
                 });
     }
