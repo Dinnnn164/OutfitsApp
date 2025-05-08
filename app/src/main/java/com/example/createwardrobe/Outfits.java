@@ -215,53 +215,39 @@ public class Outfits extends AppCompatActivity {
         outfit.put("type", outfitType);
         outfit.put("timestamp", System.currentTimeMillis());
 
-        Map<String, Map<String, Object>> itemsToSave = new HashMap<>();
+        List<String> itemNames = new ArrayList<>();
+        Map<String, Map<String, Object>> itemsDetails = new HashMap<>();
+
         for (Map.Entry<String, Map<String, Object>> entry : selectedItems.entrySet()) {
-            Map<String, Object> itemDetails = new HashMap<>(entry.getValue());
-            itemsToSave.put(entry.getKey(), itemDetails);
+            String clothingType = entry.getKey();
+            Map<String, Object> itemData = entry.getValue();
+
+
+            String itemCategory = (String) itemData.get("category");
+            if (itemCategory != null && !itemCategory.isEmpty()) {
+                itemNames.add(itemCategory.trim().toLowerCase());
+                Log.d("Outfits", "Додано категорію: " + itemCategory);
+            }
+
+            itemsDetails.put(clothingType, new HashMap<>(itemData));
         }
-        outfit.put("items", itemsToSave);
+
+        outfit.put("items", itemsDetails);
+        outfit.put("itemNames", itemNames);
 
         db.collection("outfits")
                 .add(outfit)
                 .addOnSuccessListener(documentReference -> {
-                    String lookId = documentReference.getId();
-                    recordUsageHistory(lookId, outfitName, selectedItems);
-                    Toast.makeText(this, "Аутфіт збережено", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Лук збережено!", Toast.LENGTH_SHORT).show();
                     finish();
                 })
                 .addOnFailureListener(e -> {
-                    Log.e("Outfits", "Error saving outfit", e);
+                    Log.e("Outfits", "Помилка збереження", e);
                     Toast.makeText(this, "Помилка збереження", Toast.LENGTH_SHORT).show();
                 });
     }
 
-    private void recordUsageHistory(String lookId, String name, Map<String, Map<String, Object>> selectedItems) {
-        long wornDate = System.currentTimeMillis();
-        for (Map.Entry<String, Map<String, Object>> itemEntry : selectedItems.entrySet()) {
-            Map<String, Object> itemDetails = itemEntry.getValue();
-            String itemCategory = itemEntry.getKey();
-            String itemId = (String) itemDetails.get("id");
 
-            if (itemId != null) {
-                Map<String, Object> usageRecord = new HashMap<>();
-                usageRecord.put("lookId", lookId);
-                usageRecord.put("lookName", name);
-                usageRecord.put("itemId", itemId);
-                usageRecord.put("itemCategory", itemCategory);
-                usageRecord.put("wornDate", wornDate);
-
-                db.collection("usage_history")
-                        .add(usageRecord)
-                        .addOnSuccessListener(documentReference -> {
-                            Log.d("Outfits", "Запис використання створено для item " + itemId + " у луці " + lookId);
-                        })
-                        .addOnFailureListener(e -> {
-                            Log.e("Outfits", "Помилка створення запису використання для item " + itemId + " у луці " + lookId, e);
-                        });
-            }
-        }
-    }
 
     private void addCarouselForType(String type) {
         List<Map<String, Object>> items = clothingByType.get(type);

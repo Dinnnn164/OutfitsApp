@@ -119,31 +119,52 @@ public class LookDetailsActivity extends AppCompatActivity {
     }
 
     private void saveUsageDate(long dateInMillis) {
-        for (Map.Entry<String, ClothItem> entry : lookClothItems.entrySet()) {
-            String itemId = entry.getKey();
-            Map<String, Object> itemDetails = lookItemDetails.get(itemId);
-            if (itemDetails != null && itemDetails.containsKey("category")) {
-                String category = (String) itemDetails.get("category");
-                Map<String, Object> usageData = new HashMap<>();
-                usageData.put("lookId", lookId);
-                usageData.put("itemId", itemId);
-                usageData.put("wornDate", dateInMillis);
-                usageData.put("itemCategory", category);
+        db.collection("outfits").document(lookId).get()
+                .addOnSuccessListener(outfitDocument -> {
+                    if (outfitDocument.exists()) {
+                        String outfitName = outfitDocument.getString("name");
+                        if (outfitName != null && !outfitName.isEmpty()) {
+                            for (Map.Entry<String, ClothItem> entry : lookClothItems.entrySet()) {
+                                String itemId = entry.getKey();
+                                Map<String, Object> itemDetails = lookItemDetails.get(itemId);
 
-                db.collection("usage_history")
-                        .add(usageData)
-                        .addOnSuccessListener(documentReference -> {
-                            Log.d(TAG, "Usage data saved with ID: " + documentReference.getId());
-                            Toast.makeText(LookDetailsActivity.this, "Дату використання збережено", Toast.LENGTH_SHORT).show();
-                        })
-                        .addOnFailureListener(e -> {
-                            Log.e(TAG, "Error saving usage data for item " + itemId, e);
-                            Toast.makeText(LookDetailsActivity.this, "Помилка збереження дати", Toast.LENGTH_SHORT).show();
-                        });
-            } else {
-                Log.w(TAG, "Category not found for item " + itemId + ", skipping usage save.");
-                Toast.makeText(LookDetailsActivity.this, "Категорію одягу не знайдено", Toast.LENGTH_SHORT).show();
-            }
-        }
+
+                                String category = (String) itemDetails.get("category");
+                                if (category != null) {
+                                    Map<String, Object> usageData = new HashMap<>();
+                                    usageData.put("itemCategory", category);
+                                    usageData.put("name", outfitName);
+                                    usageData.put("itemId", itemId);
+                                    usageData.put("wornDate", dateInMillis);
+                                    usageData.put("itemCategory", category);
+
+                                    db.collection("usage_history")
+                                            .add(usageData)
+                                            .addOnSuccessListener(documentReference -> {
+                                                Log.d(TAG, "Usage data saved with ID: " + documentReference.getId());
+                                                Toast.makeText(LookDetailsActivity.this, "Дату використання збережено", Toast.LENGTH_SHORT).show();
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                Log.e(TAG, "Error saving usage data for item " + itemId, e);
+                                                Toast.makeText(LookDetailsActivity.this, "Помилка збереження дати", Toast.LENGTH_SHORT).show();
+                                            });
+                                } else {
+                                    Log.w(TAG, "Category not found for item " + itemId + ", skipping usage save.");
+                                    Toast.makeText(LookDetailsActivity.this, "Категорію одягу не знайдено", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        } else {
+                            Log.w(TAG, "Outfit name not found for ID: " + lookId);
+                            Toast.makeText(LookDetailsActivity.this, "Назву луку не знайдено", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Log.w(TAG, "Outfit document not found for ID: " + lookId);
+                        Toast.makeText(LookDetailsActivity.this, "Лук не знайдено", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error fetching outfit name", e);
+                    Toast.makeText(LookDetailsActivity.this, "Помилка отримання назви луку", Toast.LENGTH_SHORT).show();
+                });
     }
 }

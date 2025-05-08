@@ -29,6 +29,7 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -45,18 +46,19 @@ import java.util.Set;
 
 public class Rating extends AppCompatActivity {
 
-    private AutoCompleteTextView editTextItemCategory;
+    private AutoCompleteTextView editTextItemName;
     private ImageView categoryCalendarIcon;
     private TextView textViewItemLooks;
     private TextView textViewLastWornDate;
     private TextView textViewMostUsedByDay;
     private Button buttonShowItemStats;
+    private Button buttonShowOutfitUsage;
     private FirebaseFirestore db;
     private static final String TAG = "RatingActivity";
     private SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
     private Date startDateFilter = null;
     private Date endDateFilter = null;
-    private List<String> allCategories = new ArrayList<>();
+    private List<String> allItemNames = new ArrayList<>();
     private ArrayAdapter<String> adapter;
     private LinearLayout chartContainer;
 
@@ -65,12 +67,13 @@ public class Rating extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rating);
 
-        editTextItemCategory = findViewById(R.id.editTextItemId);
+        editTextItemName = findViewById(R.id.editTextItemId);
         categoryCalendarIcon = findViewById(R.id.categoryCalendarIcon);
         textViewItemLooks = findViewById(R.id.textViewItemLooks);
         textViewLastWornDate = findViewById(R.id.textViewLastWornDate);
         textViewMostUsedByDay = findViewById(R.id.textViewMostUsedByDay);
         buttonShowItemStats = findViewById(R.id.buttonShowItemStats);
+        buttonShowOutfitUsage = findViewById(R.id.buttonShowOutfitUsage);
         chartContainer = findViewById(R.id.chartContainer);
 
         FirebaseApp.initializeApp(this);
@@ -81,8 +84,8 @@ public class Rating extends AppCompatActivity {
                 android.R.layout.simple_dropdown_item_1line,
                 new ArrayList<>()
         );
-        editTextItemCategory.setAdapter(adapter);
-        editTextItemCategory.setThreshold(1);
+        editTextItemName.setAdapter(adapter);
+        editTextItemName.setThreshold(1);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -93,11 +96,16 @@ public class Rating extends AppCompatActivity {
         categoryCalendarIcon.setOnClickListener(v -> showDateRangePickerDialog());
 
         buttonShowItemStats.setOnClickListener(v -> {
-            String itemCategory = editTextItemCategory.getText().toString().trim();
+            String itemCategory = editTextItemName.getText().toString().trim();
             showItemUsageStats(itemCategory, startDateFilter, endDateFilter);
         });
 
-        editTextItemCategory.addTextChangedListener(new TextWatcher() {
+        buttonShowOutfitUsage.setOnClickListener(v -> {
+            String itemName = editTextItemName.getText().toString().trim();
+            findOutfitsContainingItem(itemName);
+        });
+
+        editTextItemName.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -105,7 +113,7 @@ public class Rating extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                filterCategories(s.toString());
+                filterItemNames(s.toString());
             }
 
             @Override
@@ -115,43 +123,44 @@ public class Rating extends AppCompatActivity {
         });
 
         loadMostUsedClothingByCategoryByDay();
-        loadItemCategoriesForSuggestions();
+        loadAllItemNamesForSuggestions();
     }
 
-    private void filterCategories(String query) {
-        List<String> filteredCategories = new ArrayList<>();
-        if (query.length() >= editTextItemCategory.getThreshold()) {
-            for (String category : allCategories) {
-                if (category.toLowerCase(Locale.getDefault()).startsWith(query.toLowerCase(Locale.getDefault()))) {
-                    filteredCategories.add(category);
+    private void filterItemNames(String query) {
+        List<String> filteredItemNames = new ArrayList<>();
+        if (query.length() >= editTextItemName.getThreshold()) {
+            for (String itemName : allItemNames) {
+                if (itemName.toLowerCase(Locale.getDefault()).startsWith(query.toLowerCase(Locale.getDefault()))) {
+                    filteredItemNames.add(itemName);
                 }
             }
         } else {
-            filteredCategories.addAll(allCategories);
+            filteredItemNames.addAll(allItemNames);
         }
         adapter.clear();
-        adapter.addAll(filteredCategories);
+        adapter.addAll(filteredItemNames);
         adapter.notifyDataSetChanged();
     }
 
-    private void loadItemCategoriesForSuggestions() {
-        db.collection("usage_history")
+    private void loadAllItemNamesForSuggestions() {
+        db.collection("wardrobe")
                 .get()
                 .addOnSuccessListener(querySnapshots -> {
                     Set<String> uniqueCategories = new HashSet<>();
                     for (QueryDocumentSnapshot doc : querySnapshots) {
-                        String category = doc.getString("itemCategory");
+                        // Отримуємо категорію замість типу
+                        String category = doc.getString("category");
                         if (category != null && !category.trim().isEmpty()) {
                             uniqueCategories.add(category.trim());
                         }
                     }
-                    allCategories.addAll(uniqueCategories);
-                    adapter.clear();
-                    adapter.addAll(allCategories);
+                    allItemNames.clear();
+                    allItemNames.addAll(uniqueCategories);
                     adapter.notifyDataSetChanged();
-                })
-                .addOnFailureListener(e -> Log.e(TAG, "Помилка при завантаженні категорій", e));
+                });
     }
+
+
 
     private void showDateRangePickerDialog() {
         CalendarConstraints.Builder constraintsBuilder = new CalendarConstraints.Builder();
@@ -180,6 +189,34 @@ public class Rating extends AppCompatActivity {
         picker.show(getSupportFragmentManager(), picker.toString());
     }
 
+    private void findOutfitsContainingItem(String itemName) {
+        String normalizedItem = itemName.trim().toLowerCase();
+
+        db.collection("outfits")
+                .whereArrayContains("itemNames", normalizedItem)
+                .get()
+                .addOnSuccessListener(querySnapshots -> {
+                    List<String> outfitNames = new ArrayList<>();
+                    for (QueryDocumentSnapshot doc : querySnapshots) {
+                        String outfitName = doc.getString("name");
+                        if (outfitName != null) {
+                            outfitNames.add(outfitName);
+                        }
+                    }
+                    displayOutfits(outfitNames);
+                });
+    }
+
+
+    private void displayOutfits(List<String> outfitNames) {
+        if (outfitNames.isEmpty()) {
+            textViewItemLooks.setText("Цей одяг не використовується в жодному луці.");
+        } else {
+            String result = "Використовується в луках:\n" + String.join("\n", outfitNames);
+            textViewItemLooks.setText(result);
+        }
+    }
+
     private void showItemUsageStats(String itemCategoryFilter, Date startDate, Date endDate) {
         Map<String, Integer> usageCounts = new HashMap<>();
 
@@ -201,13 +238,30 @@ public class Rating extends AppCompatActivity {
 
         query.get()
                 .addOnSuccessListener(usageQuerySnapshots -> {
+                    Map<String, Integer> categoryUsage = new HashMap<>();
                     for (QueryDocumentSnapshot usageDocument : usageQuerySnapshots) {
                         String itemCategory = usageDocument.getString("itemCategory");
                         if (itemCategory != null) {
-                            usageCounts.put(itemCategory, usageCounts.getOrDefault(itemCategory, 0) + 1);
+                            categoryUsage.put(itemCategory, categoryUsage.getOrDefault(itemCategory, 0) + 1);
+                        }
+                        Long wornDateTimestamp = usageDocument.getLong("wornDate");
+                        if (itemCategoryFilter != null && itemCategoryFilter.equals(itemCategory) && wornDateTimestamp != null) {
+                            Date wornDate = new Date(wornDateTimestamp);
+                            if (textViewLastWornDate.getText().equals("-")) {
+                                textViewLastWornDate.setText(dateFormatter.format(wornDate));
+                            } else {
+                                try {
+                                    Date lastWorn = dateFormatter.parse(textViewLastWornDate.getText().toString());
+                                    if (wornDate.after(lastWorn)) {
+                                        textViewLastWornDate.setText(dateFormatter.format(wornDate));
+                                    }
+                                } catch (java.text.ParseException e) {
+                                    Log.e(TAG, "Помилка при парсингу дати: " + textViewLastWornDate.getText(), e);
+                                }
+                            }
                         }
                     }
-                    displayUsageStatistics(usageCounts);
+                    displayUsageStatistics(categoryUsage);
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Помилка завантаження статистики використання", e);
@@ -225,7 +279,6 @@ public class Rating extends AppCompatActivity {
             chartContainer.addView(noDataText);
             return;
         }
-
 
         BarChart barChart = new BarChart(this);
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
@@ -247,22 +300,28 @@ public class Rating extends AppCompatActivity {
         dataSet.setColor(Color.parseColor("#FF69B4"));
 
         BarData barData = new BarData(dataSet);
-        barChart.setData(barData);
+        barData.setBarWidth(0.9f);
 
+        barChart.setData(barData);
+        barChart.setFitBars(true);
+        barChart.getDescription().setEnabled(false);
+        barChart.getLegend().setEnabled(true);
 
         XAxis xAxis = barChart.getXAxis();
         xAxis.setValueFormatter(new IndexAxisValueFormatter(labels));
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setGranularity(1f);
+        xAxis.setGranularityEnabled(true);
+        xAxis.setDrawGridLines(false);
         xAxis.setLabelRotationAngle(-45);
 
-
-        barChart.getDescription().setEnabled(false);
         barChart.getAxisRight().setEnabled(false);
-        barChart.getLegend().setEnabled(false);
+
+        barChart.animateY(1000);
 
         chartContainer.addView(barChart);
     }
+
 
     private Calendar getStartOfDay(Date date) {
         Calendar calendar = Calendar.getInstance();
@@ -291,11 +350,13 @@ public class Rating extends AppCompatActivity {
         db.collection("usage_history")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
+                    Map<String, Long> lastWornDates = new HashMap<>();
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         String itemCategory = document.getString("itemCategory");
                         Long wornDateTimestamp = document.getLong("wornDate");
 
                         if (itemCategory != null && wornDateTimestamp != null) {
+
                             Calendar calendar = Calendar.getInstance();
                             calendar.setTimeInMillis(wornDateTimestamp);
                             calendar.set(Calendar.HOUR_OF_DAY, 0);
@@ -307,6 +368,8 @@ public class Rating extends AppCompatActivity {
                             dailyUsageCounts.putIfAbsent(dayTimestamp, new HashMap<>());
                             Map<String, Integer> categoryCounts = dailyUsageCounts.get(dayTimestamp);
                             categoryCounts.put(itemCategory, categoryCounts.getOrDefault(itemCategory, 0) + 1);
+
+
                         }
                     }
 

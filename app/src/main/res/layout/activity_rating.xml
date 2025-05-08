@@ -119,8 +119,14 @@
                 android:layout_marginBottom="24dp"
                 android:textColor="@color/black" />
 
-
-
+            <Button
+                android:id="@+id/buttonShowOutfitUsage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Показати луки"
+                android:backgroundTint="@color/pink"
+                android:textColor="@android:color/white"
+                android:layout_marginBottom="16dp" />
 
             <Button
                 android:id="@+id/buttonShowItemStats"
