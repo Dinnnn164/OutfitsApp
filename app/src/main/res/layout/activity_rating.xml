@@ -136,7 +136,12 @@
                 android:backgroundTint="@color/pink_accent"
                 android:textColor="@android:color/white"
                 android:layout_marginBottom="24dp" />
-
+            <Button
+                android:id="@+id/btnWeeklyStats"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Статистика по днях тижня"
+                android:layout_margin="8dp"/>
 
             <LinearLayout
                 android:id="@+id/chartContainer"

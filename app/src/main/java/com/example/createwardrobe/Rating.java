@@ -21,6 +21,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.LegendEntry;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
@@ -75,6 +77,8 @@ public class Rating extends AppCompatActivity {
         buttonShowItemStats = findViewById(R.id.buttonShowItemStats);
         buttonShowOutfitUsage = findViewById(R.id.buttonShowOutfitUsage);
         chartContainer = findViewById(R.id.chartContainer);
+        Button btnWeeklyStats = findViewById(R.id.btnWeeklyStats);
+        btnWeeklyStats.setOnClickListener(v -> loadWeeklyUsageStats());
 
         FirebaseApp.initializeApp(this);
         db = FirebaseFirestore.getInstance();
@@ -104,6 +108,8 @@ public class Rating extends AppCompatActivity {
             String itemName = editTextItemName.getText().toString().trim();
             findOutfitsContainingItem(itemName);
         });
+
+
 
         editTextItemName.addTextChangedListener(new TextWatcher() {
             @Override
@@ -148,7 +154,7 @@ public class Rating extends AppCompatActivity {
                 .addOnSuccessListener(querySnapshots -> {
                     Set<String> uniqueCategories = new HashSet<>();
                     for (QueryDocumentSnapshot doc : querySnapshots) {
-                        // Отримуємо категорію замість типу
+
                         String category = doc.getString("category");
                         if (category != null && !category.trim().isEmpty()) {
                             uniqueCategories.add(category.trim());
@@ -341,6 +347,169 @@ public class Rating extends AppCompatActivity {
         calendar.set(Calendar.SECOND, 59);
         calendar.set(Calendar.MILLISECOND, 999);
         return calendar;
+    }
+
+    private void loadWeeklyUsageStats() {
+        db.collection("usage_history")
+                .get()
+                .addOnSuccessListener(querySnapshots -> {
+                    Map<String, Map<String, Integer>> dayCategoryStats = new HashMap<>();
+
+
+                    String[] daysOfWeek = {"Понеділок", "Вівторок", "Середа", "Четвер", "П'ятниця", "Субота", "Неділя"};
+                    for (String day : daysOfWeek) {
+                        dayCategoryStats.put(day, new HashMap<>());
+                    }
+
+                    for (QueryDocumentSnapshot doc : querySnapshots) {
+                        Long timestamp = doc.getLong("wornDate");
+                        String category = doc.getString("itemCategory");
+
+                        if (timestamp != null && category != null) {
+                            Date date = new Date(timestamp);
+                            Calendar calendar = Calendar.getInstance();
+                            calendar.setTime(date);
+
+                            String dayName = convertDayNumberToName(calendar.get(Calendar.DAY_OF_WEEK));
+                            Map<String, Integer> categoryCounts = dayCategoryStats.get(dayName);
+
+
+                            categoryCounts.put(category, categoryCounts.getOrDefault(category, 0) + 1);
+                        }
+                    }
+
+
+                    Map<String, String> mostUsedByDay = new HashMap<>();
+                    for (Map.Entry<String, Map<String, Integer>> entry : dayCategoryStats.entrySet()) {
+                        String day = entry.getKey();
+                        Map<String, Integer> categories = entry.getValue();
+
+                        String maxCategory = "Немає даних";
+                        int maxCount = 0;
+
+                        for (Map.Entry<String, Integer> categoryEntry : categories.entrySet()) {
+                            if (categoryEntry.getValue() > maxCount) {
+                                maxCategory = categoryEntry.getKey();
+                                maxCount = categoryEntry.getValue();
+                            }
+                        }
+
+                        mostUsedByDay.put(day, maxCategory + " (" + maxCount + " разів)");
+                    }
+
+                    displayWeeklyStats(mostUsedByDay);
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Помилка завантаження статистики", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private String convertDayNumberToName(int dayOfWeek) {
+        switch (dayOfWeek) {
+            case Calendar.MONDAY:    return "Понеділок";
+            case Calendar.TUESDAY:   return "Вівторок";
+            case Calendar.WEDNESDAY: return "Середа";
+            case Calendar.THURSDAY:  return "Четвер";
+            case Calendar.FRIDAY:    return "П'ятниця";
+            case Calendar.SATURDAY:  return "Субота";
+            case Calendar.SUNDAY:    return "Неділя";
+            default:                 return "Невідомий день";
+        }
+    }
+
+    private void displayWeeklyStats(Map<String, String> mostUsedByDay) {
+        chartContainer.removeAllViews();
+
+
+        List<BarEntry> entries = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
+        int[] colors = new int[7];
+        int colorIndex = 0;
+
+
+        String[] daysOrder = {"Понеділок", "Вівторок", "Середа", "Четвер", "П'ятниця", "Субота", "Неділя"};
+
+
+        HashMap<String, Integer> categoryColors = new HashMap<>();
+        int[] palette = {
+                Color.rgb(255, 102, 0),
+                Color.rgb(0, 153, 204),
+                Color.rgb(255, 51, 153),
+                Color.rgb(102, 255, 102),
+                Color.rgb(153, 102, 255)
+        };
+
+
+        for (int i = 0; i < daysOrder.length; i++) {
+            String day = daysOrder[i];
+            String value = mostUsedByDay.get(day);
+
+            if (value != null && value.contains("(")) {
+                String[] parts = value.split("\\(");
+                String category = parts[0].trim();
+                int count = Integer.parseInt(parts[1].replaceAll("[^0-9]", ""));
+
+
+                entries.add(new BarEntry(i, count));
+                labels.add(day);
+
+
+                if (!categoryColors.containsKey(category)) {
+                    categoryColors.put(category, palette[colorIndex % palette.length]);
+                    colorIndex++;
+                }
+                colors[i] = categoryColors.get(category);
+            }
+        }
+
+
+        BarChart barChart = new BarChart(this);
+        barChart.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                600
+        ));
+
+        BarDataSet dataSet = new BarDataSet(entries, "Кількість використань");
+        dataSet.setColors(colors);
+        dataSet.setValueTextColor(Color.BLACK);
+
+        BarData barData = new BarData(dataSet);
+        barData.setBarWidth(0.7f);
+
+       
+        XAxis xAxis = barChart.getXAxis();
+        xAxis.setValueFormatter(new IndexAxisValueFormatter(labels));
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setGranularity(1f);
+        xAxis.setLabelRotationAngle(-45);
+
+        barChart.getAxisLeft().setGranularity(1f);
+        barChart.getAxisRight().setEnabled(false);
+        barChart.getDescription().setEnabled(false);
+
+
+        Legend legend = barChart.getLegend();
+        legend.setForm(Legend.LegendForm.SQUARE);
+        legend.setTextColor(Color.BLACK);
+        legend.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM);
+        legend.setHorizontalAlignment(Legend.LegendHorizontalAlignment.LEFT);
+        legend.setOrientation(Legend.LegendOrientation.HORIZONTAL);
+        legend.setDrawInside(false);
+
+
+        List<LegendEntry> legendEntries = new ArrayList<>();
+        for (Map.Entry<String, Integer> entry : categoryColors.entrySet()) {
+            LegendEntry legendEntry = new LegendEntry();
+            legendEntry.label = entry.getKey();
+            legendEntry.formColor = entry.getValue();
+            legendEntries.add(legendEntry);
+        }
+        legend.setCustom(legendEntries);
+
+        barChart.setData(barData);
+        barChart.animateY(1000);
+
+        chartContainer.addView(barChart);
     }
 
     private void loadMostUsedClothingByCategoryByDay() {
