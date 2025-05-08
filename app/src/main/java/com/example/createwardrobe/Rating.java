@@ -52,7 +52,7 @@ public class Rating extends AppCompatActivity {
     private ImageView categoryCalendarIcon;
     private TextView textViewItemLooks;
     private TextView textViewLastWornDate;
-    private TextView textViewMostUsedByDay;
+
     private Button buttonShowItemStats;
     private Button buttonShowOutfitUsage;
     private FirebaseFirestore db;
@@ -73,7 +73,7 @@ public class Rating extends AppCompatActivity {
         categoryCalendarIcon = findViewById(R.id.categoryCalendarIcon);
         textViewItemLooks = findViewById(R.id.textViewItemLooks);
         textViewLastWornDate = findViewById(R.id.textViewLastWornDate);
-        textViewMostUsedByDay = findViewById(R.id.textViewMostUsedByDay);
+
         buttonShowItemStats = findViewById(R.id.buttonShowItemStats);
         buttonShowOutfitUsage = findViewById(R.id.buttonShowOutfitUsage);
         chartContainer = findViewById(R.id.chartContainer);
@@ -110,7 +110,6 @@ public class Rating extends AppCompatActivity {
         });
 
 
-
         editTextItemName.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -128,7 +127,7 @@ public class Rating extends AppCompatActivity {
             }
         });
 
-        loadMostUsedClothingByCategoryByDay();
+
         loadAllItemNamesForSuggestions();
     }
 
@@ -165,7 +164,6 @@ public class Rating extends AppCompatActivity {
                     adapter.notifyDataSetChanged();
                 });
     }
-
 
 
     private void showDateRangePickerDialog() {
@@ -406,14 +404,22 @@ public class Rating extends AppCompatActivity {
 
     private String convertDayNumberToName(int dayOfWeek) {
         switch (dayOfWeek) {
-            case Calendar.MONDAY:    return "Понеділок";
-            case Calendar.TUESDAY:   return "Вівторок";
-            case Calendar.WEDNESDAY: return "Середа";
-            case Calendar.THURSDAY:  return "Четвер";
-            case Calendar.FRIDAY:    return "П'ятниця";
-            case Calendar.SATURDAY:  return "Субота";
-            case Calendar.SUNDAY:    return "Неділя";
-            default:                 return "Невідомий день";
+            case Calendar.MONDAY:
+                return "Понеділок";
+            case Calendar.TUESDAY:
+                return "Вівторок";
+            case Calendar.WEDNESDAY:
+                return "Середа";
+            case Calendar.THURSDAY:
+                return "Четвер";
+            case Calendar.FRIDAY:
+                return "П'ятниця";
+            case Calendar.SATURDAY:
+                return "Субота";
+            case Calendar.SUNDAY:
+                return "Неділя";
+            default:
+                return "Невідомий день";
         }
     }
 
@@ -476,7 +482,7 @@ public class Rating extends AppCompatActivity {
         BarData barData = new BarData(dataSet);
         barData.setBarWidth(0.7f);
 
-       
+
         XAxis xAxis = barChart.getXAxis();
         xAxis.setValueFormatter(new IndexAxisValueFormatter(labels));
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
@@ -510,69 +516,5 @@ public class Rating extends AppCompatActivity {
         barChart.animateY(1000);
 
         chartContainer.addView(barChart);
-    }
-
-    private void loadMostUsedClothingByCategoryByDay() {
-        Map<Long, Map<String, Integer>> dailyUsageCounts = new HashMap<>();
-        Map<Long, String> mostUsedCategoryByDay = new HashMap<>();
-
-        db.collection("usage_history")
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    Map<String, Long> lastWornDates = new HashMap<>();
-                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        String itemCategory = document.getString("itemCategory");
-                        Long wornDateTimestamp = document.getLong("wornDate");
-
-                        if (itemCategory != null && wornDateTimestamp != null) {
-
-                            Calendar calendar = Calendar.getInstance();
-                            calendar.setTimeInMillis(wornDateTimestamp);
-                            calendar.set(Calendar.HOUR_OF_DAY, 0);
-                            calendar.set(Calendar.MINUTE, 0);
-                            calendar.set(Calendar.SECOND, 0);
-                            calendar.set(Calendar.MILLISECOND, 0);
-                            long dayTimestamp = calendar.getTimeInMillis();
-
-                            dailyUsageCounts.putIfAbsent(dayTimestamp, new HashMap<>());
-                            Map<String, Integer> categoryCounts = dailyUsageCounts.get(dayTimestamp);
-                            categoryCounts.put(itemCategory, categoryCounts.getOrDefault(itemCategory, 0) + 1);
-
-
-                        }
-                    }
-
-                    for (Map.Entry<Long, Map<String, Integer>> dailyEntry : dailyUsageCounts.entrySet()) {
-                        long day = dailyEntry.getKey();
-                        Map<String, Integer> categoryCounts = dailyEntry.getValue();
-                        String mostUsedCategory = null;
-                        int maxCount = 0;
-
-                        for (Map.Entry<String, Integer> categoryCountEntry : categoryCounts.entrySet()) {
-                            if (categoryCountEntry.getValue() > maxCount) {
-                                mostUsedCategory = categoryCountEntry.getKey();
-                                maxCount = categoryCountEntry.getValue();
-                            }
-                        }
-                        if (mostUsedCategory != null) {
-                            mostUsedCategoryByDay.put(day, mostUsedCategory);
-                        }
-                    }
-
-                    StringBuilder sb = new StringBuilder();
-                    SimpleDateFormat dayFormatter = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
-                    for (Map.Entry<Long, String> entry : mostUsedCategoryByDay.entrySet()) {
-                        sb.append(dayFormatter.format(new Date(entry.getKey())))
-                                .append(": ")
-                                .append(entry.getValue())
-                                .append("\n");
-                    }
-                    textViewMostUsedByDay.setText(sb.toString().isEmpty() ? "-" : sb.toString());
-
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Помилка завантаження найбільш використовуваного одягу за категорією по днях", e);
-                    textViewMostUsedByDay.setText("-");
-                });
     }
 }

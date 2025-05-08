@@ -104,20 +104,7 @@
                 android:layout_marginBottom="16dp"
                 android:textColor="@color/black" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Найчастіше використовуваний одяг по днях:"
-                android:textStyle="bold"
-                android:textColor="@color/pink_dark" />
 
-            <TextView
-                android:id="@+id/textViewMostUsedByDay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="-"
-                android:layout_marginBottom="24dp"
-                android:textColor="@color/black" />
 
             <Button
                 android:id="@+id/buttonShowOutfitUsage"
