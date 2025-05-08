@@ -110,6 +110,7 @@ public class Rating extends AppCompatActivity {
         });
 
 
+
         editTextItemName.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -166,6 +167,7 @@ public class Rating extends AppCompatActivity {
     }
 
 
+
     private void showDateRangePickerDialog() {
         CalendarConstraints.Builder constraintsBuilder = new CalendarConstraints.Builder();
 
@@ -216,7 +218,7 @@ public class Rating extends AppCompatActivity {
         if (outfitNames.isEmpty()) {
             textViewItemLooks.setText("Цей одяг не використовується в жодному луці.");
         } else {
-            String result = "Використовується в луках:\n" + String.join("\n", outfitNames);
+            String result =  String.join("\n", outfitNames);
             textViewItemLooks.setText(result);
         }
     }
@@ -404,22 +406,14 @@ public class Rating extends AppCompatActivity {
 
     private String convertDayNumberToName(int dayOfWeek) {
         switch (dayOfWeek) {
-            case Calendar.MONDAY:
-                return "Понеділок";
-            case Calendar.TUESDAY:
-                return "Вівторок";
-            case Calendar.WEDNESDAY:
-                return "Середа";
-            case Calendar.THURSDAY:
-                return "Четвер";
-            case Calendar.FRIDAY:
-                return "П'ятниця";
-            case Calendar.SATURDAY:
-                return "Субота";
-            case Calendar.SUNDAY:
-                return "Неділя";
-            default:
-                return "Невідомий день";
+            case Calendar.MONDAY:    return "Понеділок";
+            case Calendar.TUESDAY:   return "Вівторок";
+            case Calendar.WEDNESDAY: return "Середа";
+            case Calendar.THURSDAY:  return "Четвер";
+            case Calendar.FRIDAY:    return "П'ятниця";
+            case Calendar.SATURDAY:  return "Субота";
+            case Calendar.SUNDAY:    return "Неділя";
+            default:                 return "Невідомий день";
         }
     }
 
@@ -517,4 +511,4 @@ public class Rating extends AppCompatActivity {
 
         chartContainer.addView(barChart);
     }
-}
+    }

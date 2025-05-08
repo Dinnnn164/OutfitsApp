@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -7,6 +8,7 @@
     android:layout_height="match_parent"
     android:background="@color/pink_light"
     tools:context=".Rating">
+
 
     <ScrollView
         android:id="@+id/scrollView2"
@@ -24,14 +26,16 @@
             android:padding="24dp"
             android:background="@drawable/rounded_pink_box">
 
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Статистика одягу"
+                android:text="👗 Статистика одягу"
                 android:textSize="22sp"
                 android:textStyle="bold"
                 android:textColor="@color/pink_dark"
                 android:layout_marginBottom="20dp" />
+
 
             <TextView
                 android:layout_width="wrap_content"
@@ -49,95 +53,166 @@
                 <AutoCompleteTextView
                     android:id="@+id/editTextItemId"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="48dp"
                     android:layout_weight="1"
                     android:hint="Наприклад: футболка"
-                    android:minHeight="48dp"
                     android:background="@drawable/rounded_edittext"
                     android:paddingStart="12dp"
-                    android:paddingTop="12dp"
-                    android:paddingBottom="12dp"
+                    android:paddingEnd="12dp"
                     android:textColor="@color/black"
                     android:completionThreshold="1"
                     android:layout_marginEnd="8dp" />
 
                 <ImageView
                     android:id="@+id/categoryCalendarIcon"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:background="@android:color/transparent"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:padding="4dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:src="@drawable/baseline_calendar_month_24"
-                    android:layout_marginTop="4dp" tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
-
+                    android:padding="10dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Календар"
+                    android:clickable="true"
+                    android:focusable="true" />
             </LinearLayout>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Використання в луках:"
-                android:textStyle="bold"
-                android:textColor="@color/pink_dark" />
 
-            <TextView
-                android:id="@+id/textViewItemLooks"
-                android:layout_width="wrap_content"
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="-"
                 android:layout_marginBottom="16dp"
-                android:textColor="@color/black" />
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:strokeColor="@color/pink"
+                app:strokeWidth="1dp"
+                android:backgroundTint="@color/white">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Останній раз одягався:"
-                android:textStyle="bold"
-                android:textColor="@color/pink_dark" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
-            <TextView
-                android:id="@+id/textViewLastWornDate"
-                android:layout_width="wrap_content"
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="📸 Використання в луках:"
+                        android:textStyle="bold"
+                        android:textColor="@color/pink_dark" />
+
+                    <TextView
+                        android:id="@+id/textViewItemLooks"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="-"
+                        android:textColor="@color/black"
+                        android:layout_marginTop="4dp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="-"
                 android:layout_marginBottom="16dp"
-                android:textColor="@color/black" />
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:strokeColor="@color/pink"
+                app:strokeWidth="1dp"
+                android:backgroundTint="@color/white">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🗓 Останній раз одягався:"
+                        android:textStyle="bold"
+                        android:textColor="@color/pink_dark" />
+
+                    <TextView
+                        android:id="@+id/textViewLastWornDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="-"
+                        android:textColor="@color/black"
+                        android:layout_marginTop="4dp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
 
-
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/buttonShowOutfitUsage"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Показати луки"
-                android:backgroundTint="@color/pink"
-                android:textColor="@android:color/white"
-                android:layout_marginBottom="16dp" />
+                android:text="👀 Показати луки"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/pink_dark"
+                android:icon="@drawable/baseline_visibility_24"
+                android:iconTint="@color/pink"
+                app:iconPadding="8dp"
+                android:padding="12dp"
+                android:backgroundTint="@android:color/white"
+                android:strokeColor="@color/pink"
+                android:insetTop="8dp"
+                android:insetBottom="8dp"
+                app:cornerRadius="28dp"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_marginBottom="12dp" />
 
-            <Button
+
+
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/buttonShowItemStats"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Показати статистику одягу"
-                android:backgroundTint="@color/pink_accent"
+                android:text="📊 Показати статистику"
+                android:textSize="18sp"
+                android:textStyle="bold"
                 android:textColor="@android:color/white"
-                android:layout_marginBottom="24dp" />
-            <Button
+                android:backgroundTint="@color/pink_accent"
+                android:icon="@drawable/baseline_bar_chart_24"
+                android:iconTint="@android:color/white"
+                app:iconPadding="8dp"
+                android:padding="12dp"
+                android:insetTop="8dp"
+                android:insetBottom="8dp"
+                app:cornerRadius="28dp"
+                android:layout_marginBottom="12dp" />
+
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnWeeklyStats"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Статистика по днях тижня"
-                android:layout_margin="8dp"/>
+                android:text="📅 По днях тижня"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/pink_dark"
+                android:icon="@drawable/baseline_calendar_today_24"
+                android:iconTint="@color/pink_dark"
+                app:iconPadding="8dp"
+                android:padding="12dp"
+                android:backgroundTint="@android:color/white"
+                android:strokeColor="@color/pink_dark"
+                android:insetTop="8dp"
+                android:insetBottom="8dp"
+                app:cornerRadius="28dp"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_marginBottom="12dp" />
 
             <LinearLayout
                 android:id="@+id/chartContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical" />
-
         </LinearLayout>
     </ScrollView>
+
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
@@ -157,7 +232,6 @@
         tools:ignore="SpeakableTextPresentCheck" />
 
     <com.google.android.material.bottomappbar.BottomAppBar
-
         android:id="@+id/bottom_app_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -180,4 +254,5 @@
             app:labelVisibilityMode="labeled"
             app:menu="@menu/bottom_menu" />
     </com.google.android.material.bottomappbar.BottomAppBar>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
