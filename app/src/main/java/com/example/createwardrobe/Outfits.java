@@ -1,6 +1,7 @@
 package com.example.createwardrobe;
 
 import android.annotation.SuppressLint;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -224,7 +225,7 @@ public class Outfits extends AppCompatActivity {
             Map<String, Object> itemData = entry.getValue();
 
 
-            String itemCategory = (String) itemData.get("category");
+            String itemCategory = (String) itemData.get("Category");
             if (itemCategory != null && !itemCategory.isEmpty()) {
                 itemNames.add(itemCategory.trim().toLowerCase());
                 Log.d("Outfits", "Додано категорію: " + itemCategory);
@@ -247,7 +248,6 @@ public class Outfits extends AppCompatActivity {
                     Toast.makeText(this, "Помилка збереження", Toast.LENGTH_SHORT).show();
                 });
     }
-
 
 
     private void addCarouselForType(String type) {
@@ -304,13 +304,25 @@ public class Outfits extends AppCompatActivity {
             itemLayout.setOrientation(LinearLayout.HORIZONTAL);
             itemLayout.setPadding(16, 8, 16, 8);
 
-            TextView itemText = new TextView(this);
-            itemText.setText(entry.getKey() + ": " + entry.getValue().get("name"));
-            itemText.setTextSize(16);
-            itemText.setLayoutParams(new LinearLayout.LayoutParams(
+            TextView itemTypeText = new TextView(this);
+            itemTypeText.setText(entry.getKey() + ": ");
+            itemTypeText.setTextSize(16);
+            itemTypeText.setTypeface(null, Typeface.BOLD);
+            itemTypeText.setLayoutParams(new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT));
+            itemLayout.addView(itemTypeText);
+
+            TextView itemNameText = new TextView(this);
+            Object categoryObject = entry.getValue().get("category"); 
+            String itemName = categoryObject != null ? categoryObject.toString() : "Назва відсутня";
+            itemNameText.setText(itemName);
+            itemNameText.setTextSize(16);
+            itemNameText.setLayoutParams(new LinearLayout.LayoutParams(
                     0,
                     LinearLayout.LayoutParams.WRAP_CONTENT,
                     1));
+            itemLayout.addView(itemNameText);
 
             ImageButton removeButton = new ImageButton(this);
             removeButton.setImageResource(android.R.drawable.ic_delete);
@@ -323,7 +335,6 @@ public class Outfits extends AppCompatActivity {
                 itemLayout.startAnimation(anim);
             });
 
-            itemLayout.addView(itemText);
             itemLayout.addView(removeButton);
             selectedItemsLayout.addView(itemLayout);
         }
