@@ -9,35 +9,33 @@
     app:cardCornerRadius="20dp"
     app:cardElevation="8dp">
 
-<LinearLayout
-android:orientation="vertical"
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:padding="16dp"
-android:gravity="center_horizontal"
-android:background="@color/white"
-android:clipToPadding="false">
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:gravity="center_horizontal"
+        android:background="@color/white"
+        android:clipToPadding="false">
 
-<ImageView
-    android:id="@+id/look_image"
-    android:layout_width="match_parent"
-    android:layout_height="200dp"
-    android:scaleType="centerCrop"
-    android:backgroundTint="@color/pink"
-android:contentDescription="Фото луку"
-android:adjustViewBounds="true"
-android:background="@drawable/rounded_image_background" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/look_images_preview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:backgroundTint="@color/pink"
+            android:background="@drawable/rounded_image_background" />
 
-<TextView
-    android:id="@+id/look_name"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="12dp"
-    android:text="Назва Луку"
-    android:textSize="20sp"
-    android:textColor="@color/pink"
-    android:textStyle="bold"
-    android:gravity="center" />
-</LinearLayout>
+        <TextView
+            android:id="@+id/look_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Назва Луку"
+            android:textSize="20sp"
+            android:textColor="@color/pink"
+            android:textStyle="bold"
+            android:gravity="center" />
+    </LinearLayout>
 
-    </androidx.cardview.widget.CardView>
+</androidx.cardview.widget.CardView>

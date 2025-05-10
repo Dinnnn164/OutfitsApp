@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
@@ -42,17 +43,24 @@ public class LooksAdapter extends RecyclerView.Adapter<LooksAdapter.LookViewHold
         return outfitList.size();
     }
 
-    public static class LookViewHolder extends RecyclerView.ViewHolder { // Зробіть клас статичним, якщо він не залежить від зовнішнього класу
+    public static class LookViewHolder extends RecyclerView.ViewHolder {
 
         private TextView lookName;
+        private RecyclerView imagesRecyclerView;
 
         public LookViewHolder(@NonNull View itemView) {
             super(itemView);
             lookName = itemView.findViewById(R.id.look_name);
+            imagesRecyclerView = itemView.findViewById(R.id.look_images_preview);
         }
 
         public void bind(Outfit outfit) {
             lookName.setText(outfit.getName());
+
+            imagesRecyclerView.setLayoutManager(new LinearLayoutManager(itemView.getContext(), LinearLayoutManager.HORIZONTAL, false));
+            List<String> base64ImageList = outfit.getImageBase64List();
+            LookImageAdapter lookImageAdapter = new LookImageAdapter(itemView.getContext(), base64ImageList);
+            imagesRecyclerView.setAdapter(lookImageAdapter);
 
             itemView.setOnClickListener(v -> {
                 Context context = itemView.getContext();
