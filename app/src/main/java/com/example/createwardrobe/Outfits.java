@@ -1,6 +1,8 @@
 package com.example.createwardrobe;
 
 import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,7 +25,12 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
+import android.widget.ImageView;
 import java.util.*;
+
 
 public class Outfits extends AppCompatActivity {
 
@@ -300,43 +307,45 @@ public class Outfits extends AppCompatActivity {
         selectedItemsLayout.addView(selectedHeader);
 
         for (Map.Entry<String, Map<String, Object>> entry : selectedItems.entrySet()) {
-            LinearLayout itemLayout = new LinearLayout(this);
-            itemLayout.setOrientation(LinearLayout.HORIZONTAL);
-            itemLayout.setPadding(16, 8, 16, 8);
+            View itemView = getLayoutInflater().inflate(R.layout.item_selected_clothing, selectedItemsLayout, false);
 
-            TextView itemTypeText = new TextView(this);
-            itemTypeText.setText(entry.getKey() + ": ");
-            itemTypeText.setTextSize(16);
-            itemTypeText.setTypeface(null, Typeface.BOLD);
-            itemTypeText.setLayoutParams(new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT));
-            itemLayout.addView(itemTypeText);
+            TextView itemTypeText = itemView.findViewById(R.id.itemTypeText);
+            TextView itemNameText = itemView.findViewById(R.id.itemNameText);
+            ImageView itemImage = itemView.findViewById(R.id.itemImage);
+            ImageButton removeButton = itemView.findViewById(R.id.removeButton);
 
-            TextView itemNameText = new TextView(this);
-            Object categoryObject = entry.getValue().get("category"); 
+            String clothingType = entry.getKey();
+            Map<String, Object> itemData = entry.getValue();
+
+            itemTypeText.setText(clothingType + ":");
+            Object categoryObject = itemData.get("category");
             String itemName = categoryObject != null ? categoryObject.toString() : "Назва відсутня";
             itemNameText.setText(itemName);
-            itemNameText.setTextSize(16);
-            itemNameText.setLayoutParams(new LinearLayout.LayoutParams(
-                    0,
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    1));
-            itemLayout.addView(itemNameText);
 
-            ImageButton removeButton = new ImageButton(this);
-            removeButton.setImageResource(android.R.drawable.ic_delete);
-            removeButton.setBackground(null);
+
+            String base64Image = (String) itemData.get("imageBase64");
+            if (base64Image != null && !base64Image.isEmpty()) {
+                try {
+                    byte[] decodedString = Base64.decode(base64Image, Base64.DEFAULT);
+                    Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                    itemImage.setImageBitmap(decodedByte);
+                } catch (IllegalArgumentException e) {
+                    Log.e("Outfits", "Помилка декодування Base64: " + e.getMessage());
+                    itemImage.setImageResource(R.drawable.sample_clothing);
+                }
+            } else {
+                itemImage.setImageResource(R.drawable.sample_clothing);
+            }
+
             removeButton.setOnClickListener(v -> {
                 selectedItems.remove(entry.getKey());
                 updateSelectedItemsDisplay();
 
                 Animation anim = AnimationUtils.loadAnimation(this, R.anim.fade_out);
-                itemLayout.startAnimation(anim);
+                itemView.startAnimation(anim);
             });
 
-            itemLayout.addView(removeButton);
-            selectedItemsLayout.addView(itemLayout);
+            selectedItemsLayout.addView(itemView);
         }
     }
 }

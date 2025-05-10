@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="12dp"
+    android:layout_margin="8dp"
+    android:background="@drawable/rounded_background"
+    android:elevation="4dp"
+    android:gravity="center_vertical">
+
+    <ImageView
+        android:id="@+id/itemImage"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/sample_clothing" />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:paddingStart="12dp">
+
+        <TextView
+            android:id="@+id/itemTypeText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Тип: Верх"
+            android:textSize="15sp"
+            android:textColor="#444"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/itemNameText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Футболка біла"
+            android:textSize="14sp"
+            android:textColor="#666" />
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/removeButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:padding="6dp"
+        android:scaleType="centerInside"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Видалити"
+        android:src="@drawable/ic_delete"
+        app:tint="@color/red"
+        tools:ignore="TouchTargetSizeCheck" />
+
+</LinearLayout>
