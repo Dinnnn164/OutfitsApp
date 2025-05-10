@@ -112,5 +112,7 @@
             android:drawableLeft="@drawable/ic_check"
             android:drawablePadding="8dp"
              />
+
     </LinearLayout>
+
 </ScrollView>

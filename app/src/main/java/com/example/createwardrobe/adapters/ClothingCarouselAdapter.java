@@ -29,7 +29,7 @@ public class ClothingCarouselAdapter extends RecyclerView.Adapter<ClothingViewHo
     @Override
     public ClothingViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_clothing_carousel_simple, parent, false);
+                .inflate(R.layout.item_cloth_carousel_simple, parent, false);
         return new ClothingViewHolder(view);
     }
 

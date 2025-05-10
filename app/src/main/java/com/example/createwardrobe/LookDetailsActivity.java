@@ -33,7 +33,7 @@ public class LookDetailsActivity extends AppCompatActivity {
     private static final String TAG = "LookDetailsActivity";
     private long selectedDateInMillis;
     private Map<String, ClothItem> lookClothItems = new HashMap<>();
-    private Map<String, String> itemIdToCategoryMap = new HashMap<>();
+
     private Map<String, Map<String, Object>> lookItemDetails = new HashMap<>();
 
     @Override

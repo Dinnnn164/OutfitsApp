@@ -3,11 +3,13 @@ package com.example.createwardrobe;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.ImageDecoder;
 import android.graphics.Outline;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewOutlineProvider;
 import android.widget.Button;
@@ -23,9 +25,13 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.bottomappbar.BottomAppBar;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 import android.provider.MediaStore;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 public class Profile extends AppCompatActivity {
 
@@ -37,6 +43,8 @@ public class Profile extends AppCompatActivity {
     private EditText editNickname;
     private Button changePhotoButton;
     private Uri selectedImageUri;
+    private BottomNavigationView bottomNavigationView;
+    private BottomAppBar bottomAppBar;
 
     private boolean isEditing = false;
 
@@ -52,7 +60,7 @@ public class Profile extends AppCompatActivity {
                                 Bitmap bitmap = loadImage(selectedImageUri);
                                 if (bitmap != null) {
                                     imageProfile.setImageBitmap(bitmap);
-                                    // Тут можна додати код для збереження нового URI фото профілю
+
                                 } else {
                                     Log.e("Profile", "Failed to load selected bitmap");
                                     Toast.makeText(Profile.this, "Не вдалося завантажити обране фото", Toast.LENGTH_SHORT).show();
@@ -72,7 +80,6 @@ public class Profile extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
-
         imageProfile = findViewById(R.id.imageProfile);
         textName = findViewById(R.id.textName);
         textNickname = findViewById(R.id.textNickname);
@@ -80,11 +87,11 @@ public class Profile extends AppCompatActivity {
         editName = findViewById(R.id.editName);
         editNickname = findViewById(R.id.editNickname);
         changePhotoButton = findViewById(R.id.changePhotoButton);
-
+        bottomAppBar = findViewById(R.id.bottom_app_bar);
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
 
         editName.setVisibility(View.GONE);
         editNickname.setVisibility(View.GONE);
-
 
         imageProfile.setClipToOutline(true);
         imageProfile.setOutlineProvider(new ViewOutlineProvider() {
@@ -97,18 +104,15 @@ public class Profile extends AppCompatActivity {
             }
         });
 
-
         Intent intent = getIntent();
         String name = intent.getStringExtra("name");
         String nickname = intent.getStringExtra("nickname");
         String imageUriStr = intent.getStringExtra("imageUri");
 
-
         textName.setText(name != null ? name : "");
         textNickname.setText(nickname != null ? "@" + nickname : "");
         editName.setText(name != null ? name : "");
         editNickname.setText(nickname != null ? nickname : "");
-
 
         if (imageUriStr != null && !imageUriStr.isEmpty()) {
             try {
@@ -131,42 +135,32 @@ public class Profile extends AppCompatActivity {
             Log.d("Profile", "imageUriStr is null or empty");
         }
 
-
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 isEditing = !isEditing;
                 if (isEditing) {
-
                     textName.setVisibility(View.GONE);
                     textNickname.setVisibility(View.GONE);
                     editName.setVisibility(View.VISIBLE);
                     editNickname.setVisibility(View.VISIBLE);
-
                     editButton.setImageResource(R.drawable.ic_save);
                     changePhotoButton.setVisibility(View.VISIBLE);
                 } else {
-
                     String newName = editName.getText().toString();
                     String newNickname = editNickname.getText().toString();
-
                     textName.setText(newName);
                     textNickname.setText("@" + newNickname);
-
                     textName.setVisibility(View.VISIBLE);
                     textNickname.setVisibility(View.VISIBLE);
                     editName.setVisibility(View.GONE);
                     editNickname.setVisibility(View.GONE);
-
                     editButton.setImageResource(R.drawable.ic_edit);
                     changePhotoButton.setVisibility(View.GONE);
-
-
                     Toast.makeText(Profile.this, "Профіль оновлено", Toast.LENGTH_SHORT).show();
                 }
             }
         });
-
 
         changePhotoButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -174,8 +168,33 @@ public class Profile extends AppCompatActivity {
                 openGallery();
             }
         });
-    }
 
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.home) {
+                startActivity(new Intent(Profile.this, MainPage.class));
+                finish();
+                return true;
+            }
+            if (id == R.id.Outfits) {
+                startActivity(new Intent(Profile.this, Outfits.class));
+                finish();
+                return true;
+            }
+            if (id == R.id.Cloth_rating) {
+                startActivity(new Intent(Profile.this, Rating.class));
+                finish();
+                return true;
+            }
+            if (id == R.id.Profile) {
+                return true;
+            }
+            return false;
+        });
+
+
+        bottomNavigationView.setSelectedItemId(R.id.Profile);
+    }
 
     private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
@@ -184,13 +203,18 @@ public class Profile extends AppCompatActivity {
         pickImageLauncher.launch(intent);
     }
 
-
     private Bitmap loadImage(Uri imageUri) throws IOException {
         if (android.os.Build.VERSION.SDK_INT >= 29) {
             ImageDecoder.Source source = ImageDecoder.createSource(this.getContentResolver(), imageUri);
             return ImageDecoder.decodeBitmap(source);
         } else {
-            return MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
+            Bitmap bitmap = null;
+            try (InputStream inputStream = getContentResolver().openInputStream(imageUri)) {
+                if (inputStream != null) {
+                    bitmap = BitmapFactory.decodeStream(inputStream);
+                }
+            }
+            return bitmap;
         }
     }
-}
+    }

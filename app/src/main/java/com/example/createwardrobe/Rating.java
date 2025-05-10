@@ -1,9 +1,11 @@
 package com.example.createwardrobe;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
@@ -25,6 +27,8 @@ import com.example.createwardrobe.classes.TopItemsStats;
 import com.example.createwardrobe.classes.WeeklyUsageStats;
 import com.example.createwardrobe.interfaces.OnDateRangeSelectedListener;
 import com.example.createwardrobe.interfaces.UsageStatsCallback;
+import com.google.android.material.bottomappbar.BottomAppBar;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.firebase.FirebaseApp;
@@ -42,6 +46,8 @@ public class Rating extends AppCompatActivity implements OnDateRangeSelectedList
     private TextView textViewItemLooks;
     private TextView textViewLastWornDate;
     private LinearLayout chartContainer;
+    private BottomNavigationView bottomNavigationView;
+    private BottomAppBar bottomAppBar;
 
     private FirebaseHelper firebaseHelper;
     private ItemNameAdapter adapter;
@@ -61,6 +67,8 @@ public class Rating extends AppCompatActivity implements OnDateRangeSelectedList
         textViewItemLooks = findViewById(R.id.textViewItemLooks);
         textViewLastWornDate = findViewById(R.id.textViewLastWornDate);
         chartContainer = findViewById(R.id.chartContainer);
+        bottomAppBar = findViewById(R.id.bottom_app_bar);
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
 
         FirebaseApp.initializeApp(this);
         firebaseHelper = new FirebaseHelper();
@@ -86,7 +94,7 @@ public class Rating extends AppCompatActivity implements OnDateRangeSelectedList
 
         findViewById(R.id.buttonShowItemStats).setOnClickListener(v -> {
             String itemCategory = editTextItemName.getText().toString().trim();
-            textViewLastWornDate.setText("-"); // Reset last worn date
+            textViewLastWornDate.setText("-");
             firebaseHelper.loadItemUsageStats(itemCategory, startDateFilter, endDateFilter, this);
         });
 
@@ -111,7 +119,7 @@ public class Rating extends AppCompatActivity implements OnDateRangeSelectedList
         editTextItemName.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                // No action needed
+
             }
 
             @Override
@@ -121,7 +129,7 @@ public class Rating extends AppCompatActivity implements OnDateRangeSelectedList
 
             @Override
             public void afterTextChanged(Editable s) {
-                // No action needed
+
             }
         });
 
@@ -138,6 +146,32 @@ public class Rating extends AppCompatActivity implements OnDateRangeSelectedList
                 showError(message);
             }
         });
+
+        bottomNavigationView.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.home) {
+                startActivity(new Intent(Rating.this, MainPage.class));
+                finish();
+                return true;
+            }
+            if (id == R.id.Outfits) {
+                startActivity(new Intent(Rating.this, Outfits.class));
+                finish();
+                return true;
+            }
+            if (id == R.id.Cloth_rating) {
+                return true;
+            }
+            if (id == R.id.Profile) {
+                startActivity(new Intent(Rating.this, Profile.class));
+                finish();
+                return true;
+            }
+            return false;
+        });
+
+
+        bottomNavigationView.setSelectedItemId(R.id.Cloth_rating);
     }
 
     private void filterItemNames(String query) {
@@ -183,7 +217,7 @@ public class Rating extends AppCompatActivity implements OnDateRangeSelectedList
         });
 
         picker.addOnNegativeButtonClickListener(dialog -> {
-            // User cancelled the dialog
+
         });
 
         picker.show(getSupportFragmentManager(), picker.toString());
@@ -203,7 +237,7 @@ public class Rating extends AppCompatActivity implements OnDateRangeSelectedList
         Toast.makeText(this, "Помилка: " + message, Toast.LENGTH_SHORT).show();
     }
 
-    // Implementation of OnDateRangeSelectedListener (not directly used here but kept for potential future use)
+
     @Override
     public void onDateRangeSelected(Date startDate, Date endDate) {
         startDateFilter = startDate;
@@ -211,7 +245,7 @@ public class Rating extends AppCompatActivity implements OnDateRangeSelectedList
         Toast.makeText(this, "Вибрано період: " + DateHelper.formatDate(startDate) + " - " + DateHelper.formatDate(endDate), Toast.LENGTH_SHORT).show();
     }
 
-    // Implementation of UsageStatsCallback
+
     @Override
     public void onItemUsageStatsLoaded(Map<String, Integer> usageCounts, Date lastWornDate) {
         itemUsageStatsDisplayer.display(usageCounts);
