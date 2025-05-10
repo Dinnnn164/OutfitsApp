@@ -30,7 +30,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="👗 Статистика одягу"
+                android:text="Статистика одягу"
                 android:textSize="22sp"
                 android:textStyle="bold"
                 android:textColor="@color/pink_dark"
@@ -95,7 +95,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="📸 Використання в луках:"
+                        android:text="Використання в луках:"
                         android:textStyle="bold"
                         android:textColor="@color/pink_dark" />
 
@@ -129,7 +129,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="🗓 Останній раз одягався:"
+                        android:text="Останній раз одягався:"
                         android:textStyle="bold"
                         android:textColor="@color/pink_dark" />
 
@@ -148,7 +148,7 @@
                 android:id="@+id/buttonShowOutfitUsage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="👀 Показати луки"
+                android:text="Показати луки"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:textColor="@color/pink_dark"
@@ -171,7 +171,7 @@
                 android:id="@+id/buttonShowItemStats"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="📊 Показати статистику"
+                android:text="Показати статистику"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:textColor="@android:color/white"
@@ -189,7 +189,7 @@
                 android:id="@+id/btnWeeklyStats"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="📅 По днях тижня"
+                android:text="По днях тижня"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:textColor="@color/pink_dark"
@@ -204,6 +204,31 @@
                 app:cornerRadius="28dp"
                 style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_marginBottom="12dp" />
+
+
+
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnTopItems"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Топ речей"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/pink_dark"
+                android:icon="@drawable/baseline_star_24"
+                android:iconTint="@color/pink_dark"
+                app:iconPadding="8dp"
+                android:padding="12dp"
+                android:backgroundTint="@android:color/white"
+                android:strokeColor="@color/pink_dark"
+                android:insetTop="8dp"
+                android:insetBottom="8dp"
+                app:cornerRadius="28dp"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_marginBottom="12dp" />
+
+
 
             <LinearLayout
                 android:id="@+id/chartContainer"

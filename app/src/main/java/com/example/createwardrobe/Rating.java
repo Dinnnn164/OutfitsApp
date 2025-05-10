@@ -1,6 +1,7 @@
 package com.example.createwardrobe;
 
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -14,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.util.Pair;
@@ -79,6 +81,8 @@ public class Rating extends AppCompatActivity {
         chartContainer = findViewById(R.id.chartContainer);
         Button btnWeeklyStats = findViewById(R.id.btnWeeklyStats);
         btnWeeklyStats.setOnClickListener(v -> loadWeeklyUsageStats());
+        Button btnTopItems = findViewById(R.id.btnTopItems);
+        btnTopItems.setOnClickListener(v -> loadTopItems());
 
         FirebaseApp.initializeApp(this);
         db = FirebaseFirestore.getInstance();
@@ -510,5 +514,122 @@ public class Rating extends AppCompatActivity {
         barChart.animateY(1000);
 
         chartContainer.addView(barChart);
+    }
+
+
+    private void loadTopItems() {
+        db.collection("usage_history")
+                .get()
+                .addOnSuccessListener(querySnapshots -> {
+                    Map<String, Integer> categoryUsage = new HashMap<>();
+
+                    
+                    for (QueryDocumentSnapshot doc : querySnapshots) {
+                        String category = doc.getString("itemCategory");
+                        if (category != null && !category.isEmpty()) {
+                            categoryUsage.put(category, categoryUsage.getOrDefault(category, 0) + 1);
+                        }
+                    }
+
+
+                    List<Map.Entry<String, Integer>> sortedList = new ArrayList<>(categoryUsage.entrySet());
+                    sortedList.sort((o1, o2) -> o2.getValue().compareTo(o1.getValue()));
+
+
+                    List<Map.Entry<String, Integer>> top3 = sortedList.subList(0, Math.min(3, sortedList.size()));
+
+                    displayTopItems(top3);
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Помилка завантаження рейтингу", Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "Помилка: ", e);
+                });
+    }
+
+    private void displayTopItems(List<Map.Entry<String, Integer>> topItems) {
+        chartContainer.removeAllViews();
+
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setPadding(32, 32, 32, 32);
+
+        TextView title = new TextView(this);
+        title.setText("Топ-3 найпопулярніших речей:");
+        title.setTextSize(18);
+        title.setTextColor(Color.DKGRAY);
+        layout.addView(title);
+
+        int rank = 1;
+        for (Map.Entry<String, Integer> entry : topItems) {
+            String category = entry.getKey();
+            int count = entry.getValue();
+
+            TextView tvItem = new TextView(this);
+            tvItem.setTextSize(16);
+            tvItem.setTextColor(Color.BLACK);
+            tvItem.setText(String.format(Locale.getDefault(),
+                    "%d. %s - %d разів", rank++, category, count));
+            layout.addView(tvItem);
+        }
+
+        chartContainer.addView(layout);
+    }
+    private void fetchItemNames(List<Map.Entry<String, Integer>> topItems) {
+        List<String> itemIds = new ArrayList<>();
+        for (Map.Entry<String, Integer> entry : topItems) {
+            itemIds.add(entry.getKey());
+        }
+
+        db.collection("usage_history")
+                .whereIn(FieldPath.documentId(), itemIds)
+                .get()
+                .addOnSuccessListener(querySnapshots -> {
+                    Map<String, String> itemNames = new HashMap<>();
+                    for (QueryDocumentSnapshot doc : querySnapshots) {
+
+                        String name = doc.getString("itemCategory");
+
+
+                        if (name == null || name.isEmpty()) {
+                            name = "Без назви";
+                        }
+                        itemNames.put(doc.getId(), name);
+
+                        
+                        Log.d("ItemCategory", "ID: " + doc.getId() +
+                                "  Назва: " + name);
+                    }
+                    displayTopItems(topItems, itemNames);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("TopItemsError", "Помилка: ", e);
+                    Toast.makeText(this, "Помилка завантаження назв", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+
+    private void displayTopItems(List<Map.Entry<String, Integer>> topItems, Map<String, String> itemNames) {
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setPadding(32, 32, 32, 32);
+
+        TextView title = new TextView(this);
+        title.setText("Топ-3 найпопулярніших речей:");
+        title.setTextSize(18);
+        title.setTextColor(Color.DKGRAY);
+        layout.addView(title);
+
+        int rank = 1;
+        for (Map.Entry<String, Integer> entry : topItems) {
+            String itemName = itemNames.getOrDefault(entry.getKey(), "Невідомий предмет");
+            TextView tvItem = new TextView(this);
+            tvItem.setTextSize(16);
+            tvItem.setTextColor(Color.BLACK);
+            tvItem.setText(String.format(Locale.getDefault(),
+                    "%d. %s - %d разів", rank++, itemName, entry.getValue()));
+            layout.addView(tvItem);
+        }
+
+        chartContainer.addView(layout);
     }
     }
