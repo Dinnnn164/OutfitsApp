@@ -1,5 +1,7 @@
-package com.example.createwardrobe;
+package com.example.createwardrobe.adapters;
 
+import com.example.createwardrobe.LookDetailsActivity;
+import com.example.createwardrobe.R;
 import com.example.createwardrobe.classes.Outfit;
 
 import android.content.Context;
@@ -10,8 +12,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
-
 
 import java.util.List;
 
@@ -42,7 +42,7 @@ public class LooksAdapter extends RecyclerView.Adapter<LooksAdapter.LookViewHold
         return outfitList.size();
     }
 
-    public class LookViewHolder extends RecyclerView.ViewHolder {
+    public static class LookViewHolder extends RecyclerView.ViewHolder { // Зробіть клас статичним, якщо він не залежить від зовнішнього класу
 
         private TextView lookName;
 

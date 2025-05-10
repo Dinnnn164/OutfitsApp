@@ -1,9 +1,9 @@
 package com.example.createwardrobe;
 
+import com.example.createwardrobe.adapters.LooksAdapter;
 import com.example.createwardrobe.classes.Outfit;
 
 import android.Manifest;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -31,7 +31,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -210,7 +209,7 @@ public class MainPage extends AppCompatActivity {
     }
 
     private void openClothingDetails(Uri imageUri) {
-        Intent intent = new Intent(MainPage.this, ClothingDetailsActivity.class);
+        Intent intent = new Intent(MainPage.this, ClothDetailsActivity.class);
         intent.putExtra("imageUri", imageUri.toString());
         startActivity(intent);
     }

@@ -23,7 +23,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 
 
-public class MainActivity extends AppCompatActivity {
+public class CreateProfile extends AppCompatActivity {
 
     private EditText editTextName;
     private EditText editTextNickname;
@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void navigateToMainPage() {
-        Intent intent = new Intent(MainActivity.this, MainPage.class);
+        Intent intent = new Intent(CreateProfile.this, MainPage.class);
         startActivity(intent);
         finish();
     }

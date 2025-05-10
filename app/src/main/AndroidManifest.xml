@@ -26,7 +26,7 @@
             android:exported="false" />
 
         <activity
-            android:name=".ClothingDetailsActivity"
+            android:name=".ClothDetailsActivity"
             android:exported="false" />
         <activity
             android:name=".Rating"
@@ -41,7 +41,7 @@
             android:name=".MainPage"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".CreateProfile"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

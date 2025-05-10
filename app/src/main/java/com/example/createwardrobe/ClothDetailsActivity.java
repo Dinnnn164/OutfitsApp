@@ -1,7 +1,6 @@
 package com.example.createwardrobe;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.ImageDecoder;
 import android.net.Uri;
@@ -20,7 +19,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ClothingDetailsActivity extends AppCompatActivity {
+public class ClothDetailsActivity extends AppCompatActivity {
 
     ImageView imagePreview;
     Spinner spinnerType, spinnerMaterial;

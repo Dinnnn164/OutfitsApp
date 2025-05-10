@@ -1,4 +1,6 @@
-package com.example.createwardrobe;
+package com.example.createwardrobe.adapters;
+
+
 
 import android.view.LayoutInflater;
 import android.view.View;
