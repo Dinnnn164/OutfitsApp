@@ -33,7 +33,7 @@ public class ItemUsageStats {
 
         if (usageCounts.isEmpty()) {
             TextView noDataText = new TextView(context);
-            noDataText.setText("Немає даних за вибраний період та/або категорію.");
+            noDataText.setText("Немає даних за вибраний період");
             chartContainer.addView(noDataText);
             return;
         }

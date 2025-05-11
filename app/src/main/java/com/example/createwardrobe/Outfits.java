@@ -20,8 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
 import com.example.createwardrobe.adapters.ClothingCarouselAdapter;
-import com.google.android.material.bottomappbar.BottomAppBar;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -117,6 +116,7 @@ public class Outfits extends AppCompatActivity {
                                 Map<String, Object> data = document.getData();
                                 data.put("id", document.getId());
                                 clothingByType.get(type).add(data);
+                                Log.d("Outfits", "Дані з wardrobe: " + data);
                             }
                         }
 
@@ -127,7 +127,6 @@ public class Outfits extends AppCompatActivity {
                     }
                 });
     }
-
     private void displayOutfit() {
         mainLayout.removeAllViews();
         selectedItemsLayout.removeAllViews();
@@ -224,6 +223,7 @@ public class Outfits extends AppCompatActivity {
         outfit.put("type", outfitType);
         outfit.put("timestamp", System.currentTimeMillis());
 
+
         List<String> itemNames = new ArrayList<>();
         Map<String, Map<String, Object>> itemsDetails = new HashMap<>();
 
@@ -232,7 +232,7 @@ public class Outfits extends AppCompatActivity {
             Map<String, Object> itemData = entry.getValue();
 
 
-            String itemCategory = (String) itemData.get("Category");
+            String itemCategory = (String) itemData.get("category");
             if (itemCategory != null && !itemCategory.isEmpty()) {
                 itemNames.add(itemCategory.trim().toLowerCase());
                 Log.d("Outfits", "Додано категорію: " + itemCategory);

@@ -40,24 +40,25 @@ public class FirebaseHelper {
                 });
     }
 
-    public void findOutfitsContainingItem(String itemName, final OutfitLoadCallback callback) {
-        String normalizedItem = itemName.trim().toLowerCase(Locale.getDefault());
+    public void findOutfitsContainingItem(String itemName, OutfitLoadCallback callback) {
+        String searchName = itemName.trim().toLowerCase();
+
         db.collection("outfits")
-                .whereArrayContains("itemNames", normalizedItem)
+                .whereArrayContains("itemNames", searchName)
                 .get()
-                .addOnSuccessListener(querySnapshots -> {
-                    List<String> outfitNames = new ArrayList<>();
-                    for (QueryDocumentSnapshot doc : querySnapshots) {
-                        String outfitName = doc.getString("name");
-                        if (outfitName != null) {
-                            outfitNames.add(outfitName);
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        List<String> outfitNames = new ArrayList<>();
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            String name = document.getString("name");
+                            outfitNames.add(name);
+                            Log.d("FirebaseSearch", "Знайдено лук: " + name);
                         }
+                        callback.onOutfitsLoaded(outfitNames);
+                    } else {
+                        Log.e("FirebaseSearch", "Помилка пошуку", task.getException());
+                        callback.onError("Помилка пошуку: " + task.getException().getMessage());
                     }
-                    callback.onOutfitsLoaded(outfitNames);
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Помилка пошуку луків", e);
-                    callback.onError("Помилка пошуку луків");
                 });
     }
 
